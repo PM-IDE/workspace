@@ -2,6 +2,7 @@ use crate::{
   features::discovery::petri_net::{arc::PetriNetArc, petri_net::PetriNet, place::Place, transition::Transition},
   utils::xml_utils::{StartEndElementCookie, XmlWriteError},
 };
+use log::trace;
 use quick_xml::{
   Writer,
   events::{BytesText, Event},
@@ -15,6 +16,14 @@ const PLACE_TAG_NAME: &str = "place";
 const NET_TAG_NAME: &str = "net";
 const TEXT_TAG_NAME: &str = "text";
 const NAME_TAG_NAME: &str = "name";
+
+const TOOL_SPECIFIC_TAG_NAME: &str = "toolspecific";
+const TOOL_ATTR_NAME: &str = "tool";
+const PROM_VALUE: &str = "ProM";
+const VERSION_ATTR_NAME: &str = "version";
+const VERSION_VALUE: &str = "6.4";
+const ACTIVITY_ATTR_NAME: &str = "activity";
+const SILENT_ACTIVITY: &str = "$invisible$";
 
 const ID_ATTR_NAME: &str = "id";
 const SOURCE_ATTR_NAME: &str = "source";
@@ -114,6 +123,18 @@ where
 
       drop(text);
       drop(name);
+    }
+
+    if transition.is_silent() {
+      let _ = StartEndElementCookie::new_with_attrs(
+        writer,
+        TOOL_SPECIFIC_TAG_NAME,
+        &vec![
+          (TOOL_ATTR_NAME, PROM_VALUE),
+          (VERSION_ATTR_NAME, VERSION_VALUE),
+          (ACTIVITY_ATTR_NAME, SILENT_ACTIVITY),
+        ],
+      );
     }
 
     drop(cookie)
