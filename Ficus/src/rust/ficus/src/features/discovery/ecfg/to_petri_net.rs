@@ -1,10 +1,25 @@
-﻿use crate::{
+﻿use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
+use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
+use crate::{
   features::discovery::petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
   utils::graph::graph::DefaultGraph,
 };
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
-pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, ()> {
+pub enum GraphToPetriNetConversionError {
+  NodeDataIsEmpty(u64),
+}
+
+impl Display for GraphToPetriNetConversionError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      GraphToPetriNetConversionError::NodeDataIsEmpty(id) => f.write_str(&format!("node {id} does not have data"))
+    }
+  }
+}
+
+pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, GraphToPetriNetConversionError> {
   if graph.all_nodes().is_empty() {
     return Ok(Default::default());
   }
@@ -15,7 +30,7 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
   let mut nodes_data = HashMap::new();
 
   for node in graph.all_nodes() {
-    let name = Arc::clone(node.data.as_ref().expect("must have name for all transitions"));
+    let name = node.data.clone().ok_or_else(|| GraphToPetriNetConversionError::NodeDataIsEmpty(node.id))?;
     let t_id = petri_net.add_transition(Transition::empty(name.clone(), Some(name.clone())));
 
     let in_place = petri_net.add_place(Place::with_name(format!("{next_place_id}")));
@@ -23,6 +38,13 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
 
     petri_net.connect_place_to_transition(&in_place, &t_id, None);
     petri_net.connect_transition_to_place(&t_id, &out_place, None);
+
+    let name = name.as_ref();
+    if name == ARTIFICIAL_START_EVENT_NAME {
+      petri_net.set_initial_marking(Marking::new(vec![SingleMarking::new(in_place, 1)]));
+    } else if name == ARTIFICIAL_END_EVENT_NAME {
+      petri_net.set_final_marking(Marking::new(vec![SingleMarking::new(out_place, 1)]));
+    }
 
     nodes_data.insert(node.id, (in_place, out_place));
     next_place_id += 2;

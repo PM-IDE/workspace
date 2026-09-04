@@ -2,7 +2,6 @@ use crate::{
   features::discovery::petri_net::{arc::PetriNetArc, petri_net::PetriNet, place::Place, transition::Transition},
   utils::xml_utils::{StartEndElementCookie, XmlWriteError},
 };
-use log::trace;
 use quick_xml::{
   Writer,
   events::{BytesText, Event},
@@ -24,6 +23,11 @@ const VERSION_ATTR_NAME: &str = "version";
 const VERSION_VALUE: &str = "6.4";
 const ACTIVITY_ATTR_NAME: &str = "activity";
 const SILENT_ACTIVITY: &str = "$invisible$";
+
+const INITIAL_MARKING_TAG: &str = "initialMarking";
+const FINAL_MARKINGS_TAG: &str = "finalmarkings";
+const MARKING_TAG: &str = "marking";
+const ID_REF_ATTR: &str = "idref";
 
 const ID_ATTR_NAME: &str = "id";
 const SOURCE_ATTR_NAME: &str = "source";
@@ -61,6 +65,7 @@ where
   write_places(net, &writer, use_names_as_ids)?;
   write_transitions(net, &writer, use_names_as_ids)?;
   write_arcs(net, &writer, use_names_as_ids)?;
+  write_final_markings(net, &writer)?;
 
   drop(net_cookie);
   drop(pnml_cookie);
@@ -84,14 +89,63 @@ where
   places.sort_by(|left, right| left.name().cmp(right.name()));
 
   for place in places {
-    let _ = StartEndElementCookie::new_with_attrs(
+    let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       PLACE_TAG_NAME,
       &vec![(ID_ATTR_NAME, create_place_id(place, use_names_as_ids).as_str())],
     )?;
+
+    let marking = net.initial_marking().and_then(|m| m.active_places().iter().find(|m| m.place_id() == place.id()));
+    if let Some(m) = marking {
+      let i_m_cookie = StartEndElementCookie::new(writer, INITIAL_MARKING_TAG)?;
+      let count_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
+
+      write_text(writer, &m.tokens_count().to_string())?;
+
+      drop(count_cookie);
+      drop(i_m_cookie);
+    }
+
+    drop(cookie);
   }
 
   Ok(())
+}
+
+fn write_final_markings<TTransitionData: ToString, TArcData>(
+  net: &PetriNet<TTransitionData, TArcData>,
+  writer: &RefCell<Writer<Cursor<Vec<u8>>>>,
+) -> Result<(), XmlWriteError> {
+  let Some(marking) = net.final_marking() else { return Ok(()); };
+
+  let f_m_cookie = StartEndElementCookie::new(writer, FINAL_MARKINGS_TAG)?;
+  for m in marking.active_places() {
+    let m_cookie = StartEndElementCookie::new(writer, MARKING_TAG)?;
+    let p_cookie = StartEndElementCookie::new_with_attrs(
+      writer,
+      PLACE_TAG_NAME,
+      &vec![(ID_REF_ATTR, &m.place_id().to_string())],
+    )?;
+
+    let t_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
+
+    write_text(writer, &m.tokens_count().to_string())?;
+
+    drop(t_cookie);
+    drop(p_cookie);
+    drop(m_cookie);
+  }
+
+  drop(f_m_cookie);
+
+  Ok(())
+}
+
+fn write_text(writer: &RefCell<Writer<Cursor<Vec<u8>>>>, text: &str) -> Result<(), XmlWriteError> {
+  writer
+    .borrow_mut()
+    .write_event(Event::Text(BytesText::new(text)))
+    .map_err(|e| XmlWriteError::WriterError(quick_xml::Error::Io(std::sync::Arc::new(e))))
 }
 
 fn write_transitions<TTransitionData, TArcData>(
@@ -113,13 +167,7 @@ where
       let name = StartEndElementCookie::new(writer, NAME_TAG_NAME);
       let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
 
-      match writer
-        .borrow_mut()
-        .write_event(Event::Text(BytesText::new(data.to_string().as_str())))
-      {
-        Ok(()) => {}
-        Err(error) => return Err(XmlWriteError::WriterError(quick_xml::Error::Io(std::sync::Arc::new(error)))),
-      };
+      write_text(writer, &data.to_string())?;
 
       drop(text);
       drop(name);

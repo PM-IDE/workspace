@@ -214,8 +214,8 @@ impl PipelineParts {
 
   pipeline_part!(convert_ecfg_to_petri_net, |context: &mut PipelineContext, _, _| {
     let graph = Self::get_user_data(context, &GRAPH_KEY)?;
-    let petri_net =
-      convert_ecfg_to_petri_net(graph).map_err(|err| PipelinePartExecutionError::new_raw("failed to convert ECFG to Petri net"))?;
+    let petri_net = convert_ecfg_to_petri_net(graph);
+    let petri_net = petri_net.map_err(|err| PipelinePartExecutionError::new_raw(err.to_string()))?;
 
     context.put_concrete(PETRI_NET_KEY.key(), petri_net);
     Ok(())
