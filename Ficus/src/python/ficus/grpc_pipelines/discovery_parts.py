@@ -262,3 +262,7 @@ class DiscoverECFG(PipelinePart):
     append_bool_value(config, const_merge_sequences_of_events, self.merge_sequences_of_events)
 
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_ecfg, config))
+
+class ConvertECFGToPetriNet(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_convert_ecfg_to_petri_net))

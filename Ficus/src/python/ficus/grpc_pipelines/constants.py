@@ -152,6 +152,7 @@ const_clusterize_traces_dbscan_grid_search = 'ClusterizeLogTracesDbscanGridSearc
 const_discover_ecfg = 'DiscoverECFG'
 const_discover_loops_strict = 'DiscoverLoopsStrict'
 const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
+const_convert_ecfg_to_petri_net = 'ConvertECFGToPetriNet'
 
 const_prepare_software_log = 'PrepareSoftwareEventLog'
 const_shorten_allocation_type = 'ShortenAllocationType'
