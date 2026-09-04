@@ -6,7 +6,7 @@ use ficus::{
       discovery::discover_ecfg,
       models::{EventWithUniqueId, RootSequenceKind},
       root_sequence::discover_root_sequence,
-      to_petri_net::convert_to_petri_net,
+      to_petri_net::convert_ecfg_to_petri_net,
     },
     petri_net::pnml_serialization::serialize_to_pnml,
   },
@@ -503,7 +503,7 @@ fn execute_ecfg_discovery_test(traces: Vec<Vec<String>>, gold_root_sequence: Vec
 fn execute_to_petri_net_test(test_name: &str, traces: Vec<Vec<String>>) {
   execute_test_with_gold(get_serialized_petri_nets_gold_path(test_name), || {
     let graph = discover_ecfg_internal(traces, None);
-    let petri_net = convert_to_petri_net(&graph).ok().unwrap();
+    let petri_net = convert_ecfg_to_petri_net(&graph).ok().unwrap();
 
     serialize_to_pnml(&petri_net, false).ok().unwrap()
   });

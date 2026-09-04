@@ -91,7 +91,8 @@ fn get_test_parts_names() -> Vec<String> {
     "AddGraphToGraphs",
     "ClearGraphs",
     "TerminateIfEmptyLog",
-    "CreateOcelAnnotationForDag"
+    "CreateOcelAnnotationForDag",
+    "ConvertEcfgToPetriNet"
   ]
 }
 

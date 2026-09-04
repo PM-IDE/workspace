@@ -20,8 +20,8 @@ impl Display for PipelinePartExecutionError {
 }
 
 impl PipelinePartExecutionError {
-  pub fn new_raw(error: String) -> Self {
-    PipelinePartExecutionError::Raw(RawPartExecutionError::new(error))
+  pub fn new_raw(error: impl Into<String>) -> Self {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(error.into()))
   }
 }
 

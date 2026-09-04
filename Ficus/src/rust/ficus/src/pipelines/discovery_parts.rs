@@ -1,3 +1,4 @@
+use crate::features::discovery::ecfg::to_petri_net::convert_ecfg_to_petri_net;
 use crate::{
   features::{
     analysis::{
@@ -210,5 +211,13 @@ impl PipelineParts {
       }
       Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
     }
+  });
+
+  pipeline_part!(convert_ecfg_to_petri_net, |context: &mut PipelineContext, _, _| {
+    let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+    let petri_net = convert_ecfg_to_petri_net(graph).map_err(|err| PipelinePartExecutionError::new_raw("failed to convert ECFG to Petri net"))?;
+
+    context.put_concrete(PETRI_NET_KEY.key(), petri_net);
+    Ok(())
   });
 }

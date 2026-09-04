@@ -149,6 +149,7 @@ impl PipelineParts {
       Self::clear_graphs(),
       Self::terminate_if_empty_log(),
       Self::create_ocel_annotation_for_dag(),
+      Self::convert_ecfg_to_petri_net(),
     ];
 
     let mut names_to_parts = HashMap::new();

@@ -4,7 +4,7 @@
 };
 use std::{collections::HashMap, sync::Arc};
 
-pub fn convert_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, ()> {
+pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, ()> {
   if graph.all_nodes().is_empty() {
     return Ok(Default::default());
   }
