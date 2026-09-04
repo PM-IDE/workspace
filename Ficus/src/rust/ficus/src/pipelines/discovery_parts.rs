@@ -1,4 +1,3 @@
-use crate::features::discovery::ecfg::to_petri_net::convert_ecfg_to_petri_net;
 use crate::{
   features::{
     analysis::{
@@ -11,7 +10,7 @@ use crate::{
         alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc,
         providers::{alpha_plus_provider::AlphaPlusRelationsProviderImpl, alpha_provider::DefaultAlphaRelationsProvider},
       },
-      ecfg::discovery_xes::discover_ecfg_from_event_log,
+      ecfg::{discovery_xes::discover_ecfg_from_event_log, to_petri_net::convert_ecfg_to_petri_net},
       fuzzy::fuzzy_miner::discover_graph_fuzzy,
       heuristic::heuristic_miner::discover_petri_net_heuristic,
       petri_net::{marking::ensure_initial_marking, pnml_serialization::serialize_to_pnml_file},
@@ -215,7 +214,8 @@ impl PipelineParts {
 
   pipeline_part!(convert_ecfg_to_petri_net, |context: &mut PipelineContext, _, _| {
     let graph = Self::get_user_data(context, &GRAPH_KEY)?;
-    let petri_net = convert_ecfg_to_petri_net(graph).map_err(|err| PipelinePartExecutionError::new_raw("failed to convert ECFG to Petri net"))?;
+    let petri_net =
+      convert_ecfg_to_petri_net(graph).map_err(|err| PipelinePartExecutionError::new_raw("failed to convert ECFG to Petri net"))?;
 
     context.put_concrete(PETRI_NET_KEY.key(), petri_net);
     Ok(())

@@ -102,7 +102,7 @@ fn construct_heuristic_petri_net(provider: &HeuristicMinerRelationsProvider, pet
 
         used.insert(*el);
       }
-    };
+    }
 
     for follower in &followers {
       if !used.contains(follower) {
