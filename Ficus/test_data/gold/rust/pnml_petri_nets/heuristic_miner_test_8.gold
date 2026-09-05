@@ -42,10 +42,12 @@
         <text>F</text>
       </name>
     </transition>
-    <transition id="silent_start_B">
+    <transition id="tau">
       <name>
-        <text>silent_start_B</text>
+        <text>tau</text>
       </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
     </transition>
     <arc id="[{A}--{post_A}]" target="post_A" source="A">
     </arc>
@@ -67,11 +69,11 @@
     </arc>
     <arc id="[{F}--{post_F}]" target="post_F" source="F">
     </arc>
-    <arc id="[{post_B}--{silent_start_B}]" source="post_B" target="silent_start_B">
+    <arc id="[{post_B}--{tau}]" source="post_B" target="tau">
     </arc>
-    <arc id="[{silent_start_B}--{pre_C}]" target="pre_C" source="silent_start_B">
+    <arc id="[{tau}--{pre_C}]" target="pre_C" source="tau">
     </arc>
-    <arc id="[{silent_start_B}--{pre_F}]" target="pre_F" source="silent_start_B">
+    <arc id="[{tau}--{pre_F}]" target="pre_F" source="tau">
     </arc>
   </net>
 </pnml>

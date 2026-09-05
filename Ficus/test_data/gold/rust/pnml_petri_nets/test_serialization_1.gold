@@ -5,6 +5,9 @@
     <place id="EndPlace">
     </place>
     <place id="StartPlace">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
     </place>
     <transition id="A">
       <name>
@@ -43,5 +46,12 @@
     </arc>
     <arc id="[{E}--{EndPlace}]" target="EndPlace" source="E">
     </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="EndPlace">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
   </net>
 </pnml>

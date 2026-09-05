@@ -39,8 +39,8 @@ pub fn test_silent_transitions_replay() {
   ensure_initial_marking(&log, &mut petri_net);
 
   let expected_transitions = vec![
-    Some(vecs!["A", "silent_start_A", "B", "C", "D"]),
-    Some(vecs!["A", "silent_start_A", "C", "B", "D"]),
+    Some(vecs!["A", "tau", "B", "C", "D"]),
+    Some(vecs!["A", "tau", "C", "B", "D"]),
   ];
 
   execute_test_with_replay(&petri_net, &log, expected_transitions);

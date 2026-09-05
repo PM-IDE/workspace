@@ -65,7 +65,7 @@ where
   write_places(net, &writer, use_names_as_ids)?;
   write_transitions(net, &writer, use_names_as_ids)?;
   write_arcs(net, &writer, use_names_as_ids)?;
-  write_final_markings(net, &writer)?;
+  write_final_markings(net, &writer, use_names_as_ids)?;
 
   drop(net_cookie);
   drop(pnml_cookie);
@@ -98,6 +98,7 @@ where
     let marking = net
       .initial_marking()
       .and_then(|m| m.active_places().iter().find(|m| m.place_id() == place.id()));
+
     if let Some(m) = marking {
       let i_m_cookie = StartEndElementCookie::new(writer, INITIAL_MARKING_TAG)?;
       let count_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
@@ -117,6 +118,7 @@ where
 fn write_final_markings<TTransitionData: ToString, TArcData>(
   net: &PetriNet<TTransitionData, TArcData>,
   writer: &RefCell<Writer<Cursor<Vec<u8>>>>,
+  use_names_as_ids: bool,
 ) -> Result<(), XmlWriteError> {
   let Some(marking) = net.final_marking() else {
     return Ok(());
@@ -125,7 +127,8 @@ fn write_final_markings<TTransitionData: ToString, TArcData>(
   let f_m_cookie = StartEndElementCookie::new(writer, FINAL_MARKINGS_TAG)?;
   for m in marking.active_places() {
     let m_cookie = StartEndElementCookie::new(writer, MARKING_TAG)?;
-    let p_cookie = StartEndElementCookie::new_with_attrs(writer, PLACE_TAG_NAME, &vec![(ID_REF_ATTR, &m.place_id().to_string())])?;
+    let place_name = create_place_id(net.place(&m.place_id()), use_names_as_ids);
+    let p_cookie = StartEndElementCookie::new_with_attrs(writer, PLACE_TAG_NAME, &vec![(ID_REF_ATTR, &place_name)])?;
 
     let t_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
 
