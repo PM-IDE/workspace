@@ -532,7 +532,7 @@ fn discover_ecfg_internal(mut traces: Vec<Vec<String>>, gold_root_sequence: Opti
 
   let factory = || (START.to_string(), END.to_string());
 
-  let context = DiscoveryContext::new(
+  let mut context = DiscoveryContext::new(
     &name_extractor,
     &factory,
     root_sequence_kind,
@@ -545,5 +545,5 @@ fn discover_ecfg_internal(mut traces: Vec<Vec<String>>, gold_root_sequence: Opti
     .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
     .collect();
 
-  discover_ecfg(&traces, &context, false, None).ok().unwrap().graph_move()
+  discover_ecfg(&traces, &mut context, false, None).ok().unwrap().graph_move()
 }

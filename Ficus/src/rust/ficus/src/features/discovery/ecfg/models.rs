@@ -5,12 +5,14 @@ use std::{
   str::FromStr,
   sync::atomic::{AtomicU64, Ordering},
 };
+use std::fmt::Write;
 
 #[derive(Debug)]
 pub enum DiscoverECFGError {
   NoArtificialStartEndEvents,
   FailedToReplaySequence,
-  NotSingleCandidateForNextNode,
+  EventIdIsNotAssignedToNode,
+  NodesAreNotConnectedDuringReplay
 }
 
 #[derive(Clone, Copy)]
@@ -40,7 +42,8 @@ impl Display for DiscoverECFGError {
     match self {
       DiscoverECFGError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
       DiscoverECFGError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
-      DiscoverECFGError::NotSingleCandidateForNextNode => f.write_str("There were several or zero candidates for next node during replay"),
+      DiscoverECFGError::NodesAreNotConnectedDuringReplay => f.write_str("Two nodes that should be connected are not connected"),
+      DiscoverECFGError::EventIdIsNotAssignedToNode => f.write_str("Some event id was not assigned to node id"),
     }
   }
 }
@@ -123,12 +126,10 @@ impl CorrespondingTraceData {
   }
 }
 
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug)]
 pub struct EventWithUniqueId<T: PartialEq + Clone> {
-  #[getset(get = "pub")]
-  event: T,
-  #[getset(get = "pub")]
-  id: u64,
+  pub(crate) event: T,
+  pub(crate) id: u64,
 }
 
 impl<T: PartialEq + Clone> EventWithUniqueId<T> {
@@ -144,7 +145,7 @@ impl<T: PartialEq + Clone> EventWithUniqueId<T> {
 
 impl<T: PartialEq + Clone> PartialEq for EventWithUniqueId<T> {
   fn eq(&self, other: &Self) -> bool {
-    self.event().eq(other.event())
+    self.event.eq(&other.event)
   }
 }
 

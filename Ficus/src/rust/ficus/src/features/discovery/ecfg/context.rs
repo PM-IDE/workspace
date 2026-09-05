@@ -1,4 +1,6 @@
 use crate::{features::discovery::ecfg::models::RootSequenceKind, utils::user_data::user_data::UserDataImpl};
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Arc<str>;
@@ -12,6 +14,7 @@ pub struct DiscoveryContext<'a, T> {
   root_sequence_kind: RootSequenceKind,
   event_to_node_info_transfer: NodeDataTransfer<'a, T>,
   event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
+  pub(crate) event_ids_to_node_ids: HashMap<u64, u64>
 }
 
 impl<'a, T> DiscoveryContext<'a, T> {
@@ -28,21 +31,26 @@ impl<'a, T> DiscoveryContext<'a, T> {
       root_sequence_kind,
       event_to_node_info_transfer,
       event_to_edge_data_transfer,
+      event_ids_to_node_ids: Default::default(),
     }
   }
 
   pub fn name_extractor(&self) -> NameExtractor<'a, T> {
     self.name_extractor
   }
+
   pub fn artificial_start_end_events_factory(&self) -> ArtificialStartEnd<'a, T> {
     self.artificial_start_end_events_factory
   }
+
   pub fn root_sequence_kind(&self) -> RootSequenceKind {
     self.root_sequence_kind
   }
+
   pub fn event_to_graph_node_info_transfer(&self) -> NodeDataTransfer<'a, T> {
     self.event_to_node_info_transfer
   }
+
   pub fn event_to_edge_data_transfer(&self) -> EdgeDataTransfer<'a, T> {
     self.event_to_edge_data_transfer
   }
