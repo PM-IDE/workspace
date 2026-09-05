@@ -1,6 +1,6 @@
 use std::cmp::max;
 
-pub fn find_longest_common_subsequence_length<T: PartialEq>(first: &Vec<T>, second: &Vec<T>, first_len: usize, second_len: usize) -> usize {
+pub fn find_longest_common_subsequence_length<T: PartialEq>(first: &[T], second: &[T], first_len: usize, second_len: usize) -> usize {
   build_longest_common_subsequence_matrix(first, second, first_len, second_len)[first_len][second_len] as usize
 }
 
