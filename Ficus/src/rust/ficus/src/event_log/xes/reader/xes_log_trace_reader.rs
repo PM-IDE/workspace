@@ -63,10 +63,10 @@ impl<'a> TraceXesEventLogIterator<'a> {
       match self.reader.borrow_mut().read_event_into(&mut self.buffer) {
         Ok(quick_xml::events::Event::End(end)) => match end.name().0 {
           EVENT_TAG_NAME => {
-            name.as_ref()?;
-            date?;
+            let name = name?;
+            let date = date.unwrap_or(DateTime::<Utc>::MIN_UTC);
 
-            let event = XesEventImpl::new_all_fields(name.unwrap(), date.unwrap(), Some(payload));
+            let event = XesEventImpl::new_all_fields(name, date, Some(payload));
             return Some(event);
           }
           _ => continue,
