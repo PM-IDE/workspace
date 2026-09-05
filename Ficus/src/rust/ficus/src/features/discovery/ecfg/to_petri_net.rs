@@ -1,11 +1,19 @@
-﻿use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
-use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::{
-  features::discovery::petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
+  features::{
+    discovery::petri_net::{
+      marking::{Marking, SingleMarking},
+      petri_net::DefaultPetriNet,
+      place::Place,
+      transition::Transition,
+    },
+    mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
+  },
   utils::graph::graph::DefaultGraph,
 };
-use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
+use std::{
+  collections::HashMap,
+  fmt::{Display, Formatter},
+};
 
 pub enum GraphToPetriNetConversionError {
   NodeDataIsEmpty(u64),
@@ -14,7 +22,7 @@ pub enum GraphToPetriNetConversionError {
 impl Display for GraphToPetriNetConversionError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      GraphToPetriNetConversionError::NodeDataIsEmpty(id) => f.write_str(&format!("node {id} does not have data"))
+      GraphToPetriNetConversionError::NodeDataIsEmpty(id) => f.write_str(&format!("node {id} does not have data")),
     }
   }
 }
@@ -30,7 +38,10 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
   let mut nodes_data = HashMap::new();
 
   for node in graph.all_nodes() {
-    let name = node.data.clone().ok_or_else(|| GraphToPetriNetConversionError::NodeDataIsEmpty(node.id))?;
+    let name = node
+      .data
+      .clone()
+      .ok_or_else(|| GraphToPetriNetConversionError::NodeDataIsEmpty(node.id))?;
     let t_id = petri_net.add_transition(Transition::empty(name.clone(), Some(name.clone())));
 
     let in_place = petri_net.add_place(Place::with_name(format!("{next_place_id}")));

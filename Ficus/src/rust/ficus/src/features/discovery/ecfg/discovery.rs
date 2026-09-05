@@ -387,10 +387,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
     if *node.id() != start_node_id && *node.id() != end_node_id {
       let new_node = graph.add_node_with_user_data(node.data.clone(), node.user_data().clone());
 
-      sub_graph_nodes_to_nodes.insert(
-        *node.id(),
-        new_node,
-      );
+      sub_graph_nodes_to_nodes.insert(*node.id(), new_node);
 
       if let Some(evt_ids) = graph.node(&new_node).unwrap().user_data().concrete(EVENT_UNIQUE_ID_KEY.key()) {
         for event_id in evt_ids {

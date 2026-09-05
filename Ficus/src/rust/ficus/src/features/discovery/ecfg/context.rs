@@ -1,7 +1,5 @@
 use crate::{features::discovery::ecfg::models::RootSequenceKind, utils::user_data::user_data::UserDataImpl};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Arc<str>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);
@@ -14,7 +12,7 @@ pub struct DiscoveryContext<'a, T> {
   root_sequence_kind: RootSequenceKind,
   event_to_node_info_transfer: NodeDataTransfer<'a, T>,
   event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
-  pub(crate) event_ids_to_node_ids: HashMap<u64, u64>
+  pub(crate) event_ids_to_node_ids: HashMap<u64, u64>,
 }
 
 impl<'a, T> DiscoveryContext<'a, T> {

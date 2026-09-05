@@ -336,8 +336,16 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   Ok(())
 }
 
-pub fn find_next_node(event_ids_to_node_ids: &HashMap<u64, u64>, graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Result<u64, DiscoverECFGError> {
-  let next_node_id = event_ids_to_node_ids.get(&next_event_id).copied().ok_or(DiscoverECFGError::EventIdIsNotAssignedToNode)?;
+pub fn find_next_node(
+  event_ids_to_node_ids: &HashMap<u64, u64>,
+  graph: &DefaultGraph,
+  current_node: u64,
+  next_event_id: u64,
+) -> Result<u64, DiscoverECFGError> {
+  let next_node_id = event_ids_to_node_ids
+    .get(&next_event_id)
+    .copied()
+    .ok_or(DiscoverECFGError::EventIdIsNotAssignedToNode)?;
 
   if !graph.are_nodes_connected(&current_node, &next_node_id) {
     return Err(DiscoverECFGError::NodesAreNotConnectedDuringReplay);

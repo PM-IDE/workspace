@@ -1,18 +1,17 @@
 use derive_new::new;
 use getset::Getters;
 use std::{
-  fmt::{Debug, Display, Formatter},
+  fmt::{Debug, Display, Formatter, Write},
   str::FromStr,
   sync::atomic::{AtomicU64, Ordering},
 };
-use std::fmt::Write;
 
 #[derive(Debug)]
 pub enum DiscoverECFGError {
   NoArtificialStartEndEvents,
   FailedToReplaySequence,
   EventIdIsNotAssignedToNode,
-  NodesAreNotConnectedDuringReplay
+  NodesAreNotConnectedDuringReplay,
 }
 
 #[derive(Clone, Copy)]

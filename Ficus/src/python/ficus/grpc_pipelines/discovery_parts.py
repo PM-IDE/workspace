@@ -266,3 +266,25 @@ class DiscoverECFG(PipelinePart):
 class ConvertECFGToPetriNet(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_convert_ecfg_to_petri_net))
+
+class SerializePetriNetPnmlBytes(PipelinePartWithCallback):
+  def __init__(self, save_path: str, use_names_as_ids:bool = False):
+    super().__init__()
+    self.save_path = save_path
+    self.use_names_as_ids = use_names_as_ids
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_bool_value(config, const_pnml_use_names_as_ids, self.use_names_as_ids)
+
+    part = create_complex_get_context_part(self.uuid,
+                                           self.__class__.__name__,
+                                           [const_bytes],
+                                           const_serialize_petri_net_bytes,
+                                           config)
+
+    return GrpcPipelinePartBase(complexContextRequestPart=part)
+
+  def execute_callback(self, values: dict[str, GrpcContextValue]):
+      file_bytes = from_grpc_bytes(values[const_bytes].bytes)
+      write_file_bytes(self.save_path, file_bytes.bytes)
