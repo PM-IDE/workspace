@@ -18,9 +18,8 @@ use crate::{
 };
 use ficus::{
   features::cases::CaseName,
-  pipelines::{
-    keys::context_keys::{CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
-    pipeline_parts::PipelineParts,
+  pipelines::keys::context_keys::{
+    CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY,
   },
   utils::user_data::user_data::UserData,
 };
@@ -34,16 +33,13 @@ use uuid::Uuid;
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,
   kafka_service: Arc<KafkaService>,
-  pipeline_parts: Arc<PipelineParts>,
 }
 
 impl GrpcKafkaServiceImpl {
   pub fn new(cv_service: Arc<ContextValueService>) -> Self {
-    let pipeline_parts = Arc::new(PipelineParts::default());
     Self {
       cv_service: cv_service.clone(),
-      kafka_service: Arc::new(KafkaService::new(pipeline_parts.clone(), cv_service)),
-      pipeline_parts,
+      kafka_service: Arc::new(KafkaService::new(cv_service)),
     }
   }
 }
@@ -213,7 +209,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     let handler = DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]);
     let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
-    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
+    let dto = PipelineExecutionDto::new(handler);
 
     let context_values = match self
       .cv_service

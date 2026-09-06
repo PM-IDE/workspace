@@ -1,0 +1,1730 @@
+<pnml>
+  <net>
+    <place id="IN_0">
+    </place>
+    <place id="IN_0">
+    </place>
+    <place id="IN_1">
+    </place>
+    <place id="IN_10">
+    </place>
+    <place id="IN_11">
+    </place>
+    <place id="IN_13">
+    </place>
+    <place id="IN_14">
+    </place>
+    <place id="IN_14">
+    </place>
+    <place id="IN_14">
+    </place>
+    <place id="IN_14">
+    </place>
+    <place id="IN_15">
+    </place>
+    <place id="IN_15">
+    </place>
+    <place id="IN_16">
+    </place>
+    <place id="IN_16">
+    </place>
+    <place id="IN_17">
+    </place>
+    <place id="IN_18">
+    </place>
+    <place id="IN_19">
+    </place>
+    <place id="IN_20">
+    </place>
+    <place id="IN_20">
+    </place>
+    <place id="IN_21">
+    </place>
+    <place id="IN_21">
+    </place>
+    <place id="IN_22">
+    </place>
+    <place id="IN_23">
+    </place>
+    <place id="IN_26">
+    </place>
+    <place id="IN_27">
+    </place>
+    <place id="IN_28">
+    </place>
+    <place id="IN_28">
+    </place>
+    <place id="IN_28">
+    </place>
+    <place id="IN_28">
+    </place>
+    <place id="IN_29">
+    </place>
+    <place id="IN_29">
+    </place>
+    <place id="IN_30">
+    </place>
+    <place id="IN_31">
+    </place>
+    <place id="IN_5">
+    </place>
+    <place id="IN_6">
+    </place>
+    <place id="IN_7">
+    </place>
+    <place id="IN_8">
+    </place>
+    <place id="IN_8">
+    </place>
+    <place id="IN_8">
+    </place>
+    <place id="IN_9">
+    </place>
+    <place id="IN_9">
+    </place>
+    <place id="IN_END">
+    </place>
+    <place id="IN_Loop[0]">
+    </place>
+    <place id="IN_Loop[15]">
+    </place>
+    <place id="IN_Loop[16]">
+    </place>
+    <place id="IN_Loop[17]">
+    </place>
+    <place id="IN_Loop[23]">
+    </place>
+    <place id="IN_Loop[23]">
+    </place>
+    <place id="IN_Loop[23]">
+    </place>
+    <place id="IN_Loop[24]">
+    </place>
+    <place id="IN_Loop[24]">
+    </place>
+    <place id="IN_Loop[24]">
+    </place>
+    <place id="IN_Loop[24]">
+    </place>
+    <place id="IN_Loop[26]">
+    </place>
+    <place id="IN_Loop[26]">
+    </place>
+    <place id="IN_Loop[27]">
+    </place>
+    <place id="IN_Loop[6]">
+    </place>
+    <place id="IN_Loop[6]">
+    </place>
+    <place id="IN_Loop[7]">
+    </place>
+    <place id="IN_START">
+    </place>
+    <place id="OUT_0">
+    </place>
+    <place id="OUT_0">
+    </place>
+    <place id="OUT_1">
+    </place>
+    <place id="OUT_10">
+    </place>
+    <place id="OUT_11">
+    </place>
+    <place id="OUT_13">
+    </place>
+    <place id="OUT_14">
+    </place>
+    <place id="OUT_14">
+    </place>
+    <place id="OUT_14">
+    </place>
+    <place id="OUT_14">
+    </place>
+    <place id="OUT_15">
+    </place>
+    <place id="OUT_15">
+    </place>
+    <place id="OUT_16">
+    </place>
+    <place id="OUT_16">
+    </place>
+    <place id="OUT_17">
+    </place>
+    <place id="OUT_18">
+    </place>
+    <place id="OUT_19">
+    </place>
+    <place id="OUT_20">
+    </place>
+    <place id="OUT_20">
+    </place>
+    <place id="OUT_21">
+    </place>
+    <place id="OUT_21">
+    </place>
+    <place id="OUT_22">
+    </place>
+    <place id="OUT_23">
+    </place>
+    <place id="OUT_26">
+    </place>
+    <place id="OUT_27">
+    </place>
+    <place id="OUT_28">
+    </place>
+    <place id="OUT_28">
+    </place>
+    <place id="OUT_28">
+    </place>
+    <place id="OUT_28">
+    </place>
+    <place id="OUT_29">
+    </place>
+    <place id="OUT_29">
+    </place>
+    <place id="OUT_30">
+    </place>
+    <place id="OUT_31">
+    </place>
+    <place id="OUT_5">
+    </place>
+    <place id="OUT_6">
+    </place>
+    <place id="OUT_7">
+    </place>
+    <place id="OUT_8">
+    </place>
+    <place id="OUT_8">
+    </place>
+    <place id="OUT_8">
+    </place>
+    <place id="OUT_9">
+    </place>
+    <place id="OUT_9">
+    </place>
+    <place id="OUT_END">
+    </place>
+    <place id="OUT_Loop[0]">
+    </place>
+    <place id="OUT_Loop[15]">
+    </place>
+    <place id="OUT_Loop[16]">
+    </place>
+    <place id="OUT_Loop[17]">
+    </place>
+    <place id="OUT_Loop[23]">
+    </place>
+    <place id="OUT_Loop[23]">
+    </place>
+    <place id="OUT_Loop[23]">
+    </place>
+    <place id="OUT_Loop[24]">
+    </place>
+    <place id="OUT_Loop[24]">
+    </place>
+    <place id="OUT_Loop[24]">
+    </place>
+    <place id="OUT_Loop[24]">
+    </place>
+    <place id="OUT_Loop[26]">
+    </place>
+    <place id="OUT_Loop[26]">
+    </place>
+    <place id="OUT_Loop[27]">
+    </place>
+    <place id="OUT_Loop[6]">
+    </place>
+    <place id="OUT_Loop[6]">
+    </place>
+    <place id="OUT_Loop[7]">
+    </place>
+    <place id="OUT_START">
+    </place>
+    <transition id="0">
+      <name>
+        <text>0</text>
+      </name>
+    </transition>
+    <transition id="0">
+      <name>
+        <text>0</text>
+      </name>
+    </transition>
+    <transition id="1">
+      <name>
+        <text>1</text>
+      </name>
+    </transition>
+    <transition id="10">
+      <name>
+        <text>10</text>
+      </name>
+    </transition>
+    <transition id="11">
+      <name>
+        <text>11</text>
+      </name>
+    </transition>
+    <transition id="13">
+      <name>
+        <text>13</text>
+      </name>
+    </transition>
+    <transition id="14">
+      <name>
+        <text>14</text>
+      </name>
+    </transition>
+    <transition id="14">
+      <name>
+        <text>14</text>
+      </name>
+    </transition>
+    <transition id="14">
+      <name>
+        <text>14</text>
+      </name>
+    </transition>
+    <transition id="14">
+      <name>
+        <text>14</text>
+      </name>
+    </transition>
+    <transition id="15">
+      <name>
+        <text>15</text>
+      </name>
+    </transition>
+    <transition id="15">
+      <name>
+        <text>15</text>
+      </name>
+    </transition>
+    <transition id="16">
+      <name>
+        <text>16</text>
+      </name>
+    </transition>
+    <transition id="16">
+      <name>
+        <text>16</text>
+      </name>
+    </transition>
+    <transition id="17">
+      <name>
+        <text>17</text>
+      </name>
+    </transition>
+    <transition id="18">
+      <name>
+        <text>18</text>
+      </name>
+    </transition>
+    <transition id="19">
+      <name>
+        <text>19</text>
+      </name>
+    </transition>
+    <transition id="20">
+      <name>
+        <text>20</text>
+      </name>
+    </transition>
+    <transition id="20">
+      <name>
+        <text>20</text>
+      </name>
+    </transition>
+    <transition id="21">
+      <name>
+        <text>21</text>
+      </name>
+    </transition>
+    <transition id="21">
+      <name>
+        <text>21</text>
+      </name>
+    </transition>
+    <transition id="22">
+      <name>
+        <text>22</text>
+      </name>
+    </transition>
+    <transition id="23">
+      <name>
+        <text>23</text>
+      </name>
+    </transition>
+    <transition id="26">
+      <name>
+        <text>26</text>
+      </name>
+    </transition>
+    <transition id="27">
+      <name>
+        <text>27</text>
+      </name>
+    </transition>
+    <transition id="28">
+      <name>
+        <text>28</text>
+      </name>
+    </transition>
+    <transition id="28">
+      <name>
+        <text>28</text>
+      </name>
+    </transition>
+    <transition id="28">
+      <name>
+        <text>28</text>
+      </name>
+    </transition>
+    <transition id="28">
+      <name>
+        <text>28</text>
+      </name>
+    </transition>
+    <transition id="29">
+      <name>
+        <text>29</text>
+      </name>
+    </transition>
+    <transition id="29">
+      <name>
+        <text>29</text>
+      </name>
+    </transition>
+    <transition id="30">
+      <name>
+        <text>30</text>
+      </name>
+    </transition>
+    <transition id="31">
+      <name>
+        <text>31</text>
+      </name>
+    </transition>
+    <transition id="5">
+      <name>
+        <text>5</text>
+      </name>
+    </transition>
+    <transition id="6">
+      <name>
+        <text>6</text>
+      </name>
+    </transition>
+    <transition id="7">
+      <name>
+        <text>7</text>
+      </name>
+    </transition>
+    <transition id="8">
+      <name>
+        <text>8</text>
+      </name>
+    </transition>
+    <transition id="8">
+      <name>
+        <text>8</text>
+      </name>
+    </transition>
+    <transition id="8">
+      <name>
+        <text>8</text>
+      </name>
+    </transition>
+    <transition id="9">
+      <name>
+        <text>9</text>
+      </name>
+    </transition>
+    <transition id="9">
+      <name>
+        <text>9</text>
+      </name>
+    </transition>
+    <transition id="END">
+      <name>
+        <text>END</text>
+      </name>
+    </transition>
+    <transition id="Loop[0]">
+      <name>
+        <text>Loop[0]</text>
+      </name>
+    </transition>
+    <transition id="Loop[15]">
+      <name>
+        <text>Loop[15]</text>
+      </name>
+    </transition>
+    <transition id="Loop[16]">
+      <name>
+        <text>Loop[16]</text>
+      </name>
+    </transition>
+    <transition id="Loop[17]">
+      <name>
+        <text>Loop[17]</text>
+      </name>
+    </transition>
+    <transition id="Loop[23]">
+      <name>
+        <text>Loop[23]</text>
+      </name>
+    </transition>
+    <transition id="Loop[23]">
+      <name>
+        <text>Loop[23]</text>
+      </name>
+    </transition>
+    <transition id="Loop[23]">
+      <name>
+        <text>Loop[23]</text>
+      </name>
+    </transition>
+    <transition id="Loop[24]">
+      <name>
+        <text>Loop[24]</text>
+      </name>
+    </transition>
+    <transition id="Loop[24]">
+      <name>
+        <text>Loop[24]</text>
+      </name>
+    </transition>
+    <transition id="Loop[24]">
+      <name>
+        <text>Loop[24]</text>
+      </name>
+    </transition>
+    <transition id="Loop[24]">
+      <name>
+        <text>Loop[24]</text>
+      </name>
+    </transition>
+    <transition id="Loop[26]">
+      <name>
+        <text>Loop[26]</text>
+      </name>
+    </transition>
+    <transition id="Loop[26]">
+      <name>
+        <text>Loop[26]</text>
+      </name>
+    </transition>
+    <transition id="Loop[27]">
+      <name>
+        <text>Loop[27]</text>
+      </name>
+    </transition>
+    <transition id="Loop[6]">
+      <name>
+        <text>Loop[6]</text>
+      </name>
+    </transition>
+    <transition id="Loop[6]">
+      <name>
+        <text>Loop[6]</text>
+      </name>
+    </transition>
+    <transition id="Loop[7]">
+      <name>
+        <text>Loop[7]</text>
+      </name>
+    </transition>
+    <transition id="START">
+      <name>
+        <text>START</text>
+      </name>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="[{0}--{OUT_0}]">
+    </arc>
+    <arc id="[{0}--{OUT_0}]">
+    </arc>
+    <arc id="[{10}--{OUT_10}]">
+    </arc>
+    <arc id="[{11}--{OUT_11}]">
+    </arc>
+    <arc id="[{13}--{OUT_13}]">
+    </arc>
+    <arc id="[{14}--{OUT_14}]">
+    </arc>
+    <arc id="[{14}--{OUT_14}]">
+    </arc>
+    <arc id="[{14}--{OUT_14}]">
+    </arc>
+    <arc id="[{14}--{OUT_14}]">
+    </arc>
+    <arc id="[{15}--{OUT_15}]">
+    </arc>
+    <arc id="[{15}--{OUT_15}]">
+    </arc>
+    <arc id="[{16}--{OUT_16}]">
+    </arc>
+    <arc id="[{16}--{OUT_16}]">
+    </arc>
+    <arc id="[{17}--{OUT_17}]">
+    </arc>
+    <arc id="[{18}--{OUT_18}]">
+    </arc>
+    <arc id="[{19}--{OUT_19}]">
+    </arc>
+    <arc id="[{1}--{OUT_1}]">
+    </arc>
+    <arc id="[{20}--{OUT_20}]">
+    </arc>
+    <arc id="[{20}--{OUT_20}]">
+    </arc>
+    <arc id="[{21}--{OUT_21}]">
+    </arc>
+    <arc id="[{21}--{OUT_21}]">
+    </arc>
+    <arc id="[{22}--{OUT_22}]">
+    </arc>
+    <arc id="[{23}--{OUT_23}]">
+    </arc>
+    <arc id="[{26}--{OUT_26}]">
+    </arc>
+    <arc id="[{27}--{OUT_27}]">
+    </arc>
+    <arc id="[{28}--{OUT_28}]">
+    </arc>
+    <arc id="[{28}--{OUT_28}]">
+    </arc>
+    <arc id="[{28}--{OUT_28}]">
+    </arc>
+    <arc id="[{28}--{OUT_28}]">
+    </arc>
+    <arc id="[{29}--{OUT_29}]">
+    </arc>
+    <arc id="[{29}--{OUT_29}]">
+    </arc>
+    <arc id="[{30}--{OUT_30}]">
+    </arc>
+    <arc id="[{31}--{OUT_31}]">
+    </arc>
+    <arc id="[{5}--{OUT_5}]">
+    </arc>
+    <arc id="[{6}--{OUT_6}]">
+    </arc>
+    <arc id="[{7}--{OUT_7}]">
+    </arc>
+    <arc id="[{8}--{OUT_8}]">
+    </arc>
+    <arc id="[{8}--{OUT_8}]">
+    </arc>
+    <arc id="[{8}--{OUT_8}]">
+    </arc>
+    <arc id="[{9}--{OUT_9}]">
+    </arc>
+    <arc id="[{9}--{OUT_9}]">
+    </arc>
+    <arc id="[{END}--{OUT_END}]">
+    </arc>
+    <arc id="[{IN_0}--{0}]">
+    </arc>
+    <arc id="[{IN_0}--{0}]">
+    </arc>
+    <arc id="[{IN_10}--{10}]">
+    </arc>
+    <arc id="[{IN_11}--{11}]">
+    </arc>
+    <arc id="[{IN_13}--{13}]">
+    </arc>
+    <arc id="[{IN_14}--{14}]">
+    </arc>
+    <arc id="[{IN_14}--{14}]">
+    </arc>
+    <arc id="[{IN_14}--{14}]">
+    </arc>
+    <arc id="[{IN_14}--{14}]">
+    </arc>
+    <arc id="[{IN_15}--{15}]">
+    </arc>
+    <arc id="[{IN_15}--{15}]">
+    </arc>
+    <arc id="[{IN_16}--{16}]">
+    </arc>
+    <arc id="[{IN_16}--{16}]">
+    </arc>
+    <arc id="[{IN_17}--{17}]">
+    </arc>
+    <arc id="[{IN_18}--{18}]">
+    </arc>
+    <arc id="[{IN_19}--{19}]">
+    </arc>
+    <arc id="[{IN_1}--{1}]">
+    </arc>
+    <arc id="[{IN_20}--{20}]">
+    </arc>
+    <arc id="[{IN_20}--{20}]">
+    </arc>
+    <arc id="[{IN_21}--{21}]">
+    </arc>
+    <arc id="[{IN_21}--{21}]">
+    </arc>
+    <arc id="[{IN_22}--{22}]">
+    </arc>
+    <arc id="[{IN_23}--{23}]">
+    </arc>
+    <arc id="[{IN_26}--{26}]">
+    </arc>
+    <arc id="[{IN_27}--{27}]">
+    </arc>
+    <arc id="[{IN_28}--{28}]">
+    </arc>
+    <arc id="[{IN_28}--{28}]">
+    </arc>
+    <arc id="[{IN_28}--{28}]">
+    </arc>
+    <arc id="[{IN_28}--{28}]">
+    </arc>
+    <arc id="[{IN_29}--{29}]">
+    </arc>
+    <arc id="[{IN_29}--{29}]">
+    </arc>
+    <arc id="[{IN_30}--{30}]">
+    </arc>
+    <arc id="[{IN_31}--{31}]">
+    </arc>
+    <arc id="[{IN_5}--{5}]">
+    </arc>
+    <arc id="[{IN_6}--{6}]">
+    </arc>
+    <arc id="[{IN_7}--{7}]">
+    </arc>
+    <arc id="[{IN_8}--{8}]">
+    </arc>
+    <arc id="[{IN_8}--{8}]">
+    </arc>
+    <arc id="[{IN_8}--{8}]">
+    </arc>
+    <arc id="[{IN_9}--{9}]">
+    </arc>
+    <arc id="[{IN_9}--{9}]">
+    </arc>
+    <arc id="[{IN_END}--{END}]">
+    </arc>
+    <arc id="[{IN_Loop[0]}--{Loop[0]}]">
+    </arc>
+    <arc id="[{IN_Loop[15]}--{Loop[15]}]">
+    </arc>
+    <arc id="[{IN_Loop[16]}--{Loop[16]}]">
+    </arc>
+    <arc id="[{IN_Loop[17]}--{Loop[17]}]">
+    </arc>
+    <arc id="[{IN_Loop[23]}--{Loop[23]}]">
+    </arc>
+    <arc id="[{IN_Loop[23]}--{Loop[23]}]">
+    </arc>
+    <arc id="[{IN_Loop[23]}--{Loop[23]}]">
+    </arc>
+    <arc id="[{IN_Loop[24]}--{Loop[24]}]">
+    </arc>
+    <arc id="[{IN_Loop[24]}--{Loop[24]}]">
+    </arc>
+    <arc id="[{IN_Loop[24]}--{Loop[24]}]">
+    </arc>
+    <arc id="[{IN_Loop[24]}--{Loop[24]}]">
+    </arc>
+    <arc id="[{IN_Loop[26]}--{Loop[26]}]">
+    </arc>
+    <arc id="[{IN_Loop[26]}--{Loop[26]}]">
+    </arc>
+    <arc id="[{IN_Loop[27]}--{Loop[27]}]">
+    </arc>
+    <arc id="[{IN_Loop[6]}--{Loop[6]}]">
+    </arc>
+    <arc id="[{IN_Loop[6]}--{Loop[6]}]">
+    </arc>
+    <arc id="[{IN_Loop[7]}--{Loop[7]}]">
+    </arc>
+    <arc id="[{IN_START}--{START}]">
+    </arc>
+    <arc id="[{Loop[0]}--{OUT_Loop[0]}]">
+    </arc>
+    <arc id="[{Loop[15]}--{OUT_Loop[15]}]">
+    </arc>
+    <arc id="[{Loop[16]}--{OUT_Loop[16]}]">
+    </arc>
+    <arc id="[{Loop[17]}--{OUT_Loop[17]}]">
+    </arc>
+    <arc id="[{Loop[23]}--{OUT_Loop[23]}]">
+    </arc>
+    <arc id="[{Loop[23]}--{OUT_Loop[23]}]">
+    </arc>
+    <arc id="[{Loop[23]}--{OUT_Loop[23]}]">
+    </arc>
+    <arc id="[{Loop[24]}--{OUT_Loop[24]}]">
+    </arc>
+    <arc id="[{Loop[24]}--{OUT_Loop[24]}]">
+    </arc>
+    <arc id="[{Loop[24]}--{OUT_Loop[24]}]">
+    </arc>
+    <arc id="[{Loop[24]}--{OUT_Loop[24]}]">
+    </arc>
+    <arc id="[{Loop[26]}--{OUT_Loop[26]}]">
+    </arc>
+    <arc id="[{Loop[26]}--{OUT_Loop[26]}]">
+    </arc>
+    <arc id="[{Loop[27]}--{OUT_Loop[27]}]">
+    </arc>
+    <arc id="[{Loop[6]}--{OUT_Loop[6]}]">
+    </arc>
+    <arc id="[{Loop[6]}--{OUT_Loop[6]}]">
+    </arc>
+    <arc id="[{Loop[7]}--{OUT_Loop[7]}]">
+    </arc>
+    <arc id="[{OUT_0}--{tau}]">
+    </arc>
+    <arc id="[{OUT_0}--{tau}]">
+    </arc>
+    <arc id="[{OUT_0}--{tau}]">
+    </arc>
+    <arc id="[{OUT_0}--{tau}]">
+    </arc>
+    <arc id="[{OUT_0}--{tau}]">
+    </arc>
+    <arc id="[{OUT_10}--{tau}]">
+    </arc>
+    <arc id="[{OUT_11}--{tau}]">
+    </arc>
+    <arc id="[{OUT_13}--{tau}]">
+    </arc>
+    <arc id="[{OUT_13}--{tau}]">
+    </arc>
+    <arc id="[{OUT_14}--{tau}]">
+    </arc>
+    <arc id="[{OUT_14}--{tau}]">
+    </arc>
+    <arc id="[{OUT_14}--{tau}]">
+    </arc>
+    <arc id="[{OUT_14}--{tau}]">
+    </arc>
+    <arc id="[{OUT_15}--{tau}]">
+    </arc>
+    <arc id="[{OUT_15}--{tau}]">
+    </arc>
+    <arc id="[{OUT_16}--{tau}]">
+    </arc>
+    <arc id="[{OUT_16}--{tau}]">
+    </arc>
+    <arc id="[{OUT_17}--{tau}]">
+    </arc>
+    <arc id="[{OUT_18}--{tau}]">
+    </arc>
+    <arc id="[{OUT_19}--{tau}]">
+    </arc>
+    <arc id="[{OUT_1}--{tau}]">
+    </arc>
+    <arc id="[{OUT_20}--{tau}]">
+    </arc>
+    <arc id="[{OUT_20}--{tau}]">
+    </arc>
+    <arc id="[{OUT_21}--{tau}]">
+    </arc>
+    <arc id="[{OUT_21}--{tau}]">
+    </arc>
+    <arc id="[{OUT_21}--{tau}]">
+    </arc>
+    <arc id="[{OUT_21}--{tau}]">
+    </arc>
+    <arc id="[{OUT_21}--{tau}]">
+    </arc>
+    <arc id="[{OUT_22}--{tau}]">
+    </arc>
+    <arc id="[{OUT_22}--{tau}]">
+    </arc>
+    <arc id="[{OUT_23}--{tau}]">
+    </arc>
+    <arc id="[{OUT_23}--{tau}]">
+    </arc>
+    <arc id="[{OUT_26}--{tau}]">
+    </arc>
+    <arc id="[{OUT_27}--{tau}]">
+    </arc>
+    <arc id="[{OUT_28}--{tau}]">
+    </arc>
+    <arc id="[{OUT_28}--{tau}]">
+    </arc>
+    <arc id="[{OUT_28}--{tau}]">
+    </arc>
+    <arc id="[{OUT_28}--{tau}]">
+    </arc>
+    <arc id="[{OUT_28}--{tau}]">
+    </arc>
+    <arc id="[{OUT_29}--{tau}]">
+    </arc>
+    <arc id="[{OUT_29}--{tau}]">
+    </arc>
+    <arc id="[{OUT_30}--{tau}]">
+    </arc>
+    <arc id="[{OUT_31}--{tau}]">
+    </arc>
+    <arc id="[{OUT_5}--{tau}]">
+    </arc>
+    <arc id="[{OUT_5}--{tau}]">
+    </arc>
+    <arc id="[{OUT_5}--{tau}]">
+    </arc>
+    <arc id="[{OUT_5}--{tau}]">
+    </arc>
+    <arc id="[{OUT_6}--{tau}]">
+    </arc>
+    <arc id="[{OUT_7}--{tau}]">
+    </arc>
+    <arc id="[{OUT_7}--{tau}]">
+    </arc>
+    <arc id="[{OUT_7}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_8}--{tau}]">
+    </arc>
+    <arc id="[{OUT_9}--{tau}]">
+    </arc>
+    <arc id="[{OUT_9}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[0]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[15]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[16]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[16]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[17]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[17]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[23]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[23]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[23]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[24]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[24]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[24]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[24]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[26]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[26]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[26]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[27]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[6]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[6]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[6]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[7]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[7]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_Loop[7]}--{tau}]">
+    </arc>
+    <arc id="[{OUT_START}--{tau}]">
+    </arc>
+    <arc id="[{OUT_START}--{tau}]">
+    </arc>
+    <arc id="[{START}--{OUT_START}]">
+    </arc>
+    <arc id="[{tau}--{IN_0}]">
+    </arc>
+    <arc id="[{tau}--{IN_0}]">
+    </arc>
+    <arc id="[{tau}--{IN_0}]">
+    </arc>
+    <arc id="[{tau}--{IN_0}]">
+    </arc>
+    <arc id="[{tau}--{IN_10}]">
+    </arc>
+    <arc id="[{tau}--{IN_10}]">
+    </arc>
+    <arc id="[{tau}--{IN_11}]">
+    </arc>
+    <arc id="[{tau}--{IN_13}]">
+    </arc>
+    <arc id="[{tau}--{IN_14}]">
+    </arc>
+    <arc id="[{tau}--{IN_14}]">
+    </arc>
+    <arc id="[{tau}--{IN_14}]">
+    </arc>
+    <arc id="[{tau}--{IN_14}]">
+    </arc>
+    <arc id="[{tau}--{IN_15}]">
+    </arc>
+    <arc id="[{tau}--{IN_15}]">
+    </arc>
+    <arc id="[{tau}--{IN_16}]">
+    </arc>
+    <arc id="[{tau}--{IN_16}]">
+    </arc>
+    <arc id="[{tau}--{IN_17}]">
+    </arc>
+    <arc id="[{tau}--{IN_18}]">
+    </arc>
+    <arc id="[{tau}--{IN_18}]">
+    </arc>
+    <arc id="[{tau}--{IN_18}]">
+    </arc>
+    <arc id="[{tau}--{IN_19}]">
+    </arc>
+    <arc id="[{tau}--{IN_1}]">
+    </arc>
+    <arc id="[{tau}--{IN_20}]">
+    </arc>
+    <arc id="[{tau}--{IN_20}]">
+    </arc>
+    <arc id="[{tau}--{IN_20}]">
+    </arc>
+    <arc id="[{tau}--{IN_20}]">
+    </arc>
+    <arc id="[{tau}--{IN_21}]">
+    </arc>
+    <arc id="[{tau}--{IN_21}]">
+    </arc>
+    <arc id="[{tau}--{IN_22}]">
+    </arc>
+    <arc id="[{tau}--{IN_22}]">
+    </arc>
+    <arc id="[{tau}--{IN_23}]">
+    </arc>
+    <arc id="[{tau}--{IN_26}]">
+    </arc>
+    <arc id="[{tau}--{IN_27}]">
+    </arc>
+    <arc id="[{tau}--{IN_28}]">
+    </arc>
+    <arc id="[{tau}--{IN_28}]">
+    </arc>
+    <arc id="[{tau}--{IN_28}]">
+    </arc>
+    <arc id="[{tau}--{IN_28}]">
+    </arc>
+    <arc id="[{tau}--{IN_29}]">
+    </arc>
+    <arc id="[{tau}--{IN_29}]">
+    </arc>
+    <arc id="[{tau}--{IN_30}]">
+    </arc>
+    <arc id="[{tau}--{IN_31}]">
+    </arc>
+    <arc id="[{tau}--{IN_5}]">
+    </arc>
+    <arc id="[{tau}--{IN_6}]">
+    </arc>
+    <arc id="[{tau}--{IN_7}]">
+    </arc>
+    <arc id="[{tau}--{IN_7}]">
+    </arc>
+    <arc id="[{tau}--{IN_7}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_8}]">
+    </arc>
+    <arc id="[{tau}--{IN_9}]">
+    </arc>
+    <arc id="[{tau}--{IN_9}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[0]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[15]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[16]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[17]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[17]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[23]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[23]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[23]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[24]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[24]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[24]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[24]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[26]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[26]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[26]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[26]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[27]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[6]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[6]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[7]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[7]}]">
+    </arc>
+    <arc id="[{tau}--{IN_Loop[7]}]">
+    </arc>
+  </net>
+</pnml>

@@ -1,0 +1,41 @@
+<pnml>
+  <net>
+    <place id="IN_END">
+    </place>
+    <place id="IN_START">
+    </place>
+    <place id="OUT_END">
+    </place>
+    <place id="OUT_START">
+    </place>
+    <transition id="END">
+      <name>
+        <text>END</text>
+      </name>
+    </transition>
+    <transition id="START">
+      <name>
+        <text>START</text>
+      </name>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="[{END}--{OUT_END}]">
+    </arc>
+    <arc id="[{IN_END}--{END}]">
+    </arc>
+    <arc id="[{IN_START}--{START}]">
+    </arc>
+    <arc id="[{OUT_START}--{tau}]">
+    </arc>
+    <arc id="[{START}--{OUT_START}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+  </net>
+</pnml>

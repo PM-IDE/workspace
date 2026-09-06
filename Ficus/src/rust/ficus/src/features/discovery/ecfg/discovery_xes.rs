@@ -64,7 +64,7 @@ pub fn discover_ecfg_from_event_log(
     transfer_data_from_event_to_edge_user_data(event, user_data_impl);
   };
 
-  let context = DiscoveryContext::new(
+  let mut context = DiscoveryContext::new(
     &name_extractor,
     &artificial_start_end_events_factory,
     root_sequence_kind,
@@ -82,8 +82,8 @@ pub fn discover_ecfg_from_event_log(
     .map(|t| t.into_iter().map(EventWithUniqueId::new).collect())
     .collect();
 
-  let mut result = discover_ecfg(&log, &context, merge_sequences_of_events, Some(performance_map))?;
-  discover_graphs_for_patterns(result.graph_mut(), &context);
+  let mut result = discover_ecfg(&log, &mut context, merge_sequences_of_events, Some(performance_map))?;
+  discover_graphs_for_patterns(result.graph_mut(), &mut context);
 
   Ok(result.graph_move())
 }
@@ -152,7 +152,7 @@ fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
   }
 }
 
-fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryContext<Rc<RefCell<XesEventImpl>>>) {
+fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &mut DiscoveryContext<Rc<RefCell<XesEventImpl>>>) {
   for node in graph.all_nodes_mut() {
     let user_data = node.user_data_mut();
 

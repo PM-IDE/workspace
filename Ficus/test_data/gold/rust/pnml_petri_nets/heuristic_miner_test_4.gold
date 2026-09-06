@@ -51,44 +51,46 @@
         <text>G</text>
       </name>
     </transition>
-    <transition id="silent_start_A">
+    <transition id="tau">
       <name>
-        <text>silent_start_A</text>
+        <text>tau</text>
       </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
     </transition>
-    <arc id="[{A}--{post_A}]" target="post_A" source="A">
+    <arc id="[{A}--{post_A}]">
     </arc>
-    <arc id="[{post_F}--{B}]" source="post_F" target="B">
+    <arc id="[{B}--{post_B}]">
     </arc>
-    <arc id="[{B}--{post_B}]" target="post_B" source="B">
+    <arc id="[{C}--{post_C}]">
     </arc>
-    <arc id="[{pre_C}--{C}]" source="pre_C" target="C">
+    <arc id="[{D}--{post_D}]">
     </arc>
-    <arc id="[{C}--{post_C}]" target="post_C" source="C">
+    <arc id="[{F}--{post_F}]">
     </arc>
-    <arc id="[{post_F}--{D}]" source="post_F" target="D">
+    <arc id="[{G}--{post_G}]">
     </arc>
-    <arc id="[{D}--{post_D}]" target="post_D" source="D">
+    <arc id="[{post_A}--{tau}]">
     </arc>
-    <arc id="[{post_C}--{E}]" source="post_C" target="E">
+    <arc id="[{post_B}--{G}]">
     </arc>
-    <arc id="[{post_G}--{E}]" source="post_G" target="E">
+    <arc id="[{post_C}--{E}]">
     </arc>
-    <arc id="[{pre_F}--{F}]" source="pre_F" target="F">
+    <arc id="[{post_D}--{G}]">
     </arc>
-    <arc id="[{F}--{post_F}]" target="post_F" source="F">
+    <arc id="[{post_F}--{B}]">
     </arc>
-    <arc id="[{post_B}--{G}]" source="post_B" target="G">
+    <arc id="[{post_F}--{D}]">
     </arc>
-    <arc id="[{post_D}--{G}]" source="post_D" target="G">
+    <arc id="[{post_G}--{E}]">
     </arc>
-    <arc id="[{G}--{post_G}]" target="post_G" source="G">
+    <arc id="[{pre_C}--{C}]">
     </arc>
-    <arc id="[{post_A}--{silent_start_A}]" source="post_A" target="silent_start_A">
+    <arc id="[{pre_F}--{F}]">
     </arc>
-    <arc id="[{silent_start_A}--{pre_C}]" target="pre_C" source="silent_start_A">
+    <arc id="[{tau}--{pre_C}]">
     </arc>
-    <arc id="[{silent_start_A}--{pre_F}]" target="pre_F" source="silent_start_A">
+    <arc id="[{tau}--{pre_F}]">
     </arc>
   </net>
 </pnml>

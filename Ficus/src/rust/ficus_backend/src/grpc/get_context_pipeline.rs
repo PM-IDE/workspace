@@ -105,10 +105,7 @@ impl GetContextValuePipelinePart {
   }
 
   fn value_or_default<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
-    match context.concrete(key.key()) {
-      None => default_factory(),
-      Some(value) => value.clone(),
-    }
+    context.concrete(key.key()).cloned().unwrap_or_else(default_factory)
   }
 
   fn value_or_none<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {

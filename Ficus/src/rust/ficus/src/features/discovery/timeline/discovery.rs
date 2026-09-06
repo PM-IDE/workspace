@@ -15,7 +15,6 @@ use getset::{Getters, MutGetters};
 use std::{
   cell::RefCell,
   collections::HashMap,
-  error::Error,
   fmt::{Debug, Display, Formatter},
   ops::Deref,
   rc::Rc,
@@ -74,14 +73,9 @@ pub struct TraceThreadEvent {
   stamp: i64,
 }
 
+#[derive(Debug)]
 pub enum LogThreadsDiagramError {
   NotSupportedEventStamp,
-}
-
-impl Debug for LogThreadsDiagramError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    Display::fmt(self, f)
-  }
 }
 
 impl Display for LogThreadsDiagramError {
@@ -91,8 +85,6 @@ impl Display for LogThreadsDiagramError {
     }
   }
 }
-
-impl Error for LogThreadsDiagramError {}
 
 impl From<LogThreadsDiagramError> for PipelinePartExecutionError {
   fn from(val: LogThreadsDiagramError) -> Self {

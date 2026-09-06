@@ -1,11 +1,16 @@
+use crate::test_core::{gold_based_test::execute_test_with_gold, test_paths::get_serialized_petri_nets_gold_path};
 use ficus::{
-  features::discovery::ecfg::{
-    context::DiscoveryContext,
-    discovery::discover_ecfg,
-    models::{EventWithUniqueId, RootSequenceKind},
-    root_sequence::discover_root_sequence,
+  features::discovery::{
+    ecfg::{
+      context::DiscoveryContext,
+      discovery::discover_ecfg,
+      models::{EventWithUniqueId, RootSequenceKind},
+      root_sequence::discover_root_sequence,
+      to_petri_net::convert_ecfg_to_petri_net,
+    },
+    petri_net::pnml_serialization::serialize_to_pnml,
   },
-  utils::user_data::user_data::UserDataImpl,
+  utils::{graph::graph::DefaultGraph, user_data::user_data::UserDataImpl},
   vecs,
 };
 use std::sync::Arc;
@@ -29,6 +34,14 @@ pub fn test_ecfg_1() {
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_1() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_1",
+    vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "B", "D", "E"]],
+  );
+}
+
+#[test]
 pub fn test_ecfg_2() {
   execute_ecfg_discovery_test(
     vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "X", "Y", "E"]],
@@ -44,6 +57,14 @@ pub fn test_ecfg_2() {
       "[X]--[Y]",
       "[Y]--[E]",
     ],
+  );
+}
+
+#[test]
+pub fn test_ecfg_to_petri_net_2() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_2",
+    vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "X", "Y", "E"]],
   );
 }
 
@@ -68,13 +89,31 @@ pub fn test_ecfg_3() {
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_3() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_3",
+    vec![vecs!["A"], vecs!["B"], vecs!["C"], vecs!["D"], vecs!["E"]],
+  );
+}
+
+#[test]
 pub fn test_ecfg_4() {
   execute_ecfg_discovery_test(vec![], vec![], vec![])
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_4() {
+  execute_to_petri_net_test("test_ecfg_to_petri_net_4", vec![]);
+}
+
+#[test]
 pub fn test_ecfg_5() {
   execute_ecfg_discovery_test(vec![vecs![]], vecs!["START", "END"], vec!["[START]--[END]"])
+}
+
+#[test]
+pub fn test_ecfg_to_petri_net_5() {
+  execute_to_petri_net_test("test_ecfg_to_petri_net_5", vec![vecs![]]);
 }
 
 #[test]
@@ -110,6 +149,17 @@ pub fn test_ecfg_6() {
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_6() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_6",
+    vec![
+      vecs!["A", "X", "B", "Y", "C", "Z", "D", "W", "E"],
+      vecs!["X", "A", "Y", "B", "Z", "C", "W", "D"],
+    ],
+  );
+}
+
+#[test]
 pub fn test_ecfg_7() {
   execute_ecfg_discovery_test(
     vec![
@@ -139,6 +189,17 @@ pub fn test_ecfg_7() {
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_7() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_7",
+    vec![
+      vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
+      vecs!["A", "B", "C", "D", "E"],
+    ],
+  );
+}
+
+#[test]
 pub fn test_ecfg_8() {
   execute_ecfg_discovery_test(
     vec![
@@ -159,6 +220,19 @@ pub fn test_ecfg_8() {
       "[X]--[B]",
       "[X]--[C]",
       "[X]--[D]",
+    ],
+  );
+}
+
+#[test]
+pub fn test_ecfg_to_petri_net_8() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_8",
+    vec![
+      vecs!["A", "B", "C", "D", "E"],
+      vecs!["A", "X", "B", "C", "D", "E"],
+      vecs!["A", "X", "C", "D", "E"],
+      vecs!["A", "X", "D", "E"],
     ],
   );
 }
@@ -194,6 +268,20 @@ pub fn test_ecfg_9() {
 }
 
 #[test]
+pub fn test_ecfg_to_petri_net_9() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_9",
+    vec![
+      vecs!["A", "B", "C", "D", "E"],
+      vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
+      vecs!["A", "Y", "Z", "W", "B", "C", "D", "E"],
+      vecs!["A", "Z", "W", "B", "C", "D", "E"],
+      vecs!["A", "X", "B", "C", "D", "E"],
+    ],
+  );
+}
+
+#[test]
 pub fn test_ecfg_10() {
   execute_ecfg_discovery_test(
     vec![
@@ -223,6 +311,19 @@ pub fn test_ecfg_10() {
       "[z]--[w]",
     ],
   )
+}
+
+#[test]
+pub fn test_ecfg_to_petri_net_10() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_10",
+    vec![
+      vecs!["A", "B", "C", "D", "E"],
+      vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
+      vecs!["A", "y", "z", "w", "B", "C", "D", "E"],
+      vecs!["A", "V", "B", "C", "D", "E"],
+    ],
+  );
 }
 
 #[test]
@@ -344,40 +445,37 @@ pub fn test_ecfg_11() {
   )
 }
 
-fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
-  const START: &'static str = "START";
-  const END: &'static str = "END";
-
-  for trace in &mut traces {
-    trace.push(END.to_string());
-    trace.insert(0, START.to_string());
-  }
-
-  let root_sequence_kind = RootSequenceKind::FindBest;
-  let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
-  assert_eq!(root_sequence, gold_root_sequence);
-
-  let name_extractor = |s: &String| Arc::from(s.to_owned());
-
-  let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
-  let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
-
-  let factory = || (START.to_string(), END.to_string());
-
-  let context = DiscoveryContext::new(
-    &name_extractor,
-    &factory,
-    root_sequence_kind,
-    &to_node_data_transfer,
-    &to_edge_data_transfer,
+#[test]
+pub fn test_ecfg_to_petri_net_11() {
+  execute_to_petri_net_test(
+    "test_ecfg_to_petri_net_11",
+    vec![
+      vecs!["5", "6", "7", "8", "0"],
+      vecs!["13", "1", "0", "9", "14"],
+      vecs![
+        "13", "Loop[6]", "Loop[7]", "8", "Loop[15]", "18", "19", "20", "21", "17", "22", "Loop[23]", "Loop[24]", "8", "Loop[16]", "14"
+      ],
+      vecs!["13", "Loop[6]", "Loop[7]", "9", "Loop[26]", "23", "Loop[24]", "27", "8", "14"],
+      vecs![
+        "5", "7", "0", "28", "26", "Loop[23]", "Loop[24]", "8", "16", "0", "28", "20", "21", "10"
+      ],
+      vecs!["5", "Loop[6]", "29", "7", "8", "Loop[17]", "11", "28", "8", "Loop[16]", "10"],
+      vecs![
+        "5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10"
+      ],
+      vecs![
+        "13", "Loop[6]", "29", "Loop[7]", "8", "15", "30", "Loop[26]", "Loop[23]", "Loop[24]", "Loop[27]", "8", "Loop[0]", "28", "20",
+        "21", "16", "14"
+      ],
+      vecs![
+        "5", "7", "31", "15", "18", "19", "20", "21", "Loop[17]", "11", "28", "Loop[26]", "23", "8", "Loop[16]", "10"
+      ],
+    ],
   );
+}
 
-  let traces = traces
-    .into_iter()
-    .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
-    .collect();
-
-  let graph = discover_ecfg(&traces, &context, false, None).ok().unwrap().graph_move();
+fn execute_ecfg_discovery_test(traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
+  let graph = discover_ecfg_internal(traces, Some(gold_root_sequence));
 
   let test_result = graph.serialize_edges_deterministic(false);
 
@@ -400,4 +498,52 @@ fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence:
 
     assert!(false);
   }
+}
+
+fn execute_to_petri_net_test(test_name: &str, traces: Vec<Vec<String>>) {
+  execute_test_with_gold(get_serialized_petri_nets_gold_path(test_name), || {
+    let graph = discover_ecfg_internal(traces, None);
+    let petri_net = convert_ecfg_to_petri_net(&graph).ok().unwrap();
+
+    serialize_to_pnml(&petri_net, true).ok().unwrap()
+  });
+}
+
+fn discover_ecfg_internal(mut traces: Vec<Vec<String>>, gold_root_sequence: Option<Vec<String>>) -> DefaultGraph {
+  const START: &'static str = "START";
+  const END: &'static str = "END";
+
+  for trace in &mut traces {
+    trace.push(END.to_string());
+    trace.insert(0, START.to_string());
+  }
+
+  let root_sequence_kind = RootSequenceKind::FindBest;
+  let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
+
+  if let Some(gold_root_sequence) = gold_root_sequence {
+    assert_eq!(root_sequence, gold_root_sequence);
+  }
+
+  let name_extractor = |s: &String| Arc::from(s.to_owned());
+
+  let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
+  let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
+
+  let factory = || (START.to_string(), END.to_string());
+
+  let mut context = DiscoveryContext::new(
+    &name_extractor,
+    &factory,
+    root_sequence_kind,
+    &to_node_data_transfer,
+    &to_edge_data_transfer,
+  );
+
+  let traces = traces
+    .into_iter()
+    .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
+    .collect();
+
+  discover_ecfg(&traces, &mut context, false, None).ok().unwrap().graph_move()
 }

@@ -6,7 +6,7 @@ use crate::{
         NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
         NODE_START_END_ACTIVITY_TIME_KEY,
       },
-      discovery::{EVENT_UNIQUE_ID_KEY, replay_sequence_with_history},
+      discovery::replay_sequence_with_history,
       models::{ActivityStartEndTimeData, DiscoverECFGError, EventWithUniqueId, NodeAdditionalDataContainer},
     },
     petri_net::annotations::{PERFORMANCE_ANNOTATION_INFO_KEY, PerformanceAnnotationInfo, PerformanceMap},
@@ -134,6 +134,7 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
     added_node,
     NodesConnectionData::new(None, start_node_edge_weight, None),
   );
+
   graph.connect_nodes(
     added_node,
     &nodes_ids.end_node,
@@ -288,8 +289,8 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(
 
   for trace in log {
     for i in 0..trace.len() - 1 {
-      let first_name = name_extractor(trace[i].event());
-      let second_name = name_extractor(trace[i + 1].event());
+      let first_name = name_extractor(&trace[i].event);
+      let second_name = name_extractor(&trace[i + 1].event);
 
       *df_relations.entry((Some(first_name), Some(second_name))).or_insert(0) += 1usize;
     }
@@ -312,13 +313,14 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(
 }
 
 pub fn adjust_weights<T: PartialEq + Clone + Debug>(
+  context: &mut DiscoveryContext<T>,
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
   start_node_id: u64,
 ) -> Result<(), DiscoverECFGError> {
   let mut edges_weights = HashMap::new();
   for trace in log {
-    let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
+    let replay_history = replay_sequence_with_history(context, graph, start_node_id, &trace[1..])?;
     for i in 0..replay_history.len() - 1 {
       let from_node = replay_history[i];
       let to_node = replay_history[i + 1];
@@ -334,44 +336,36 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   Ok(())
 }
 
-pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Result<u64, DiscoverECFGError> {
-  let next_nodes = graph
-    .outgoing_nodes(&current_node)
-    .into_iter()
-    .filter_map(|n| {
-      match graph
-        .node(n)
-        .unwrap()
-        .user_data()
-        .get(EVENT_UNIQUE_ID_KEY.key())
-        .unwrap_or(&vec![])
-        .contains(&next_event_id)
-      {
-        true => Some(*n),
-        false => None,
-      }
-    })
-    .collect::<Vec<u64>>();
+pub fn find_next_node(
+  event_ids_to_node_ids: &HashMap<u64, u64>,
+  graph: &DefaultGraph,
+  current_node: u64,
+  next_event_id: u64,
+) -> Result<u64, DiscoverECFGError> {
+  let next_node_id = event_ids_to_node_ids
+    .get(&next_event_id)
+    .copied()
+    .ok_or(DiscoverECFGError::EventIdIsNotAssignedToNode)?;
 
-  if next_nodes.len() != 1 {
-    Err(DiscoverECFGError::NotSingleCandidateForNextNode)
-  } else {
-    Ok(*next_nodes.first().unwrap())
+  if !graph.are_nodes_connected(&current_node, &next_node_id) {
+    return Err(DiscoverECFGError::NodesAreNotConnectedDuringReplay);
   }
+
+  Ok(next_node_id)
 }
 
 pub fn adjust_edges_data<T: PartialEq + Clone + Debug>(
-  context: &DiscoveryContext<T>,
+  context: &mut DiscoveryContext<T>,
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
   start_node_id: u64,
 ) -> Result<(), DiscoverECFGError> {
   for trace in log {
-    let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
+    let replay_history = replay_sequence_with_history(context, graph, start_node_id, &trace[1..])?;
 
     for i in 0..replay_history.len() - 1 {
       let edge = graph.edge_mut(&replay_history[i], &replay_history[i + 1]).unwrap();
-      context.event_to_edge_data_transfer()(trace[i].event(), edge.user_data_mut())
+      context.event_to_edge_data_transfer()(&trace[i].event, edge.user_data_mut())
     }
   }
 

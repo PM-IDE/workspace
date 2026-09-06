@@ -7,6 +7,9 @@
     <place id="EndPlace">
     </place>
     <place id="StartPlace">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
     </place>
     <transition id="A">
       <name>
@@ -23,17 +26,24 @@
         <text>C</text>
       </name>
     </transition>
-    <arc id="[{StartPlace}--{A}]" source="StartPlace" target="A">
+    <arc id="[{({A}, {B})}--{B}]">
     </arc>
-    <arc id="[{A}--{({A}, {B})}]" target="({A}, {B})" source="A">
+    <arc id="[{({B}, {C})}--{C}]">
     </arc>
-    <arc id="[{({A}, {B})}--{B}]" source="({A}, {B})" target="B">
+    <arc id="[{A}--{({A}, {B})}]">
     </arc>
-    <arc id="[{B}--{({B}, {C})}]" target="({B}, {C})" source="B">
+    <arc id="[{B}--{({B}, {C})}]">
     </arc>
-    <arc id="[{({B}, {C})}--{C}]" source="({B}, {C})" target="C">
+    <arc id="[{C}--{EndPlace}]">
     </arc>
-    <arc id="[{C}--{EndPlace}]" target="EndPlace" source="C">
+    <arc id="[{StartPlace}--{A}]">
     </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="EndPlace">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
   </net>
 </pnml>

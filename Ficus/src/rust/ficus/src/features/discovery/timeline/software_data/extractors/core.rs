@@ -4,7 +4,6 @@ use crate::{
 };
 use std::{
   cell::RefCell,
-  error::Error,
   fmt::{Debug, Display, Formatter},
   rc::Rc,
   str::FromStr,
@@ -27,8 +26,6 @@ impl Display for SoftwareDataExtractionError {
     }
   }
 }
-
-impl Error for SoftwareDataExtractionError {}
 
 pub trait EventGroupSoftwareDataExtractor {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {

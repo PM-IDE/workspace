@@ -16,7 +16,7 @@ impl Marking {
     }
   }
 
-  pub fn active_places(&self) -> &Vec<SingleMarking> {
+  pub fn active_places(&self) -> &[SingleMarking] {
     &self.active_places
   }
 }

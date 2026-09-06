@@ -180,6 +180,12 @@ impl GrpcContextValuesService for GrpcContextValueService {
     }
   }
 
+  async fn drop_context_values(&self, request: Request<GrpcDropContextValuesRequest>) -> Result<Response<()>, Status> {
+    self.cv_service.prune_context_values(&request.get_ref().ids);
+
+    Ok(Response::new(()))
+  }
+
   async fn get_context_value_id(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGuid>, Status> {
     let key_name = &request.get_ref().key.as_ref().unwrap().name;
     match find_context_key(key_name) {
@@ -201,11 +207,5 @@ impl GrpcContextValuesService for GrpcContextValueService {
         context_values: ids.into_iter().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
       })
     })
-  }
-
-  async fn drop_context_values(&self, request: Request<GrpcDropContextValuesRequest>) -> Result<Response<()>, Status> {
-    self.cv_service.prune_context_values(&request.get_ref().ids);
-
-    Ok(Response::new(()))
   }
 }
