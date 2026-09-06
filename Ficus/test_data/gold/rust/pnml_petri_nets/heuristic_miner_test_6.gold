@@ -31,19 +31,19 @@
         <text>E</text>
       </name>
     </transition>
-    <arc id="[{A}--{post_A}]" target="post_A" source="A">
+    <arc id="[{A}--{post_A}]">
     </arc>
-    <arc id="[{B}--{post_B}]" target="post_B" source="B">
+    <arc id="[{B}--{post_B}]">
     </arc>
-    <arc id="[{post_A}--{C}]" source="post_A" target="C">
+    <arc id="[{C}--{post_C}]">
     </arc>
-    <arc id="[{post_B}--{C}]" source="post_B" target="C">
+    <arc id="[{post_A}--{C}]">
     </arc>
-    <arc id="[{C}--{post_C}]" target="post_C" source="C">
+    <arc id="[{post_B}--{C}]">
     </arc>
-    <arc id="[{post_C}--{D}]" source="post_C" target="D">
+    <arc id="[{post_C}--{D}]">
     </arc>
-    <arc id="[{post_C}--{E}]" source="post_C" target="E">
+    <arc id="[{post_C}--{E}]">
     </arc>
   </net>
 </pnml>

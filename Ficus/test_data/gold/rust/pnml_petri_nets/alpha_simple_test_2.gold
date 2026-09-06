@@ -34,17 +34,17 @@
         <text>E</text>
       </name>
     </transition>
-    <arc id="[{StartPlace}--{A}]" source="StartPlace" target="A">
+    <arc id="[{({D}, {E})}--{E}]">
     </arc>
-    <arc id="[{A}--{EndPlace}]" target="EndPlace" source="A">
+    <arc id="[{A}--{EndPlace}]">
     </arc>
-    <arc id="[{StartPlace}--{B}]" source="StartPlace" target="B">
+    <arc id="[{D}--{({D}, {E})}]">
     </arc>
-    <arc id="[{D}--{({D}, {E})}]" target="({D}, {E})" source="D">
+    <arc id="[{E}--{EndPlace}]">
     </arc>
-    <arc id="[{({D}, {E})}--{E}]" source="({D}, {E})" target="E">
+    <arc id="[{StartPlace}--{A}]">
     </arc>
-    <arc id="[{E}--{EndPlace}]" target="EndPlace" source="E">
+    <arc id="[{StartPlace}--{B}]">
     </arc>
     <finalmarkings>
       <marking>

@@ -505,7 +505,7 @@ fn execute_to_petri_net_test(test_name: &str, traces: Vec<Vec<String>>) {
     let graph = discover_ecfg_internal(traces, None);
     let petri_net = convert_ecfg_to_petri_net(&graph).ok().unwrap();
 
-    serialize_to_pnml(&petri_net, false).ok().unwrap()
+    serialize_to_pnml(&petri_net, true).ok().unwrap()
   });
 }
 
