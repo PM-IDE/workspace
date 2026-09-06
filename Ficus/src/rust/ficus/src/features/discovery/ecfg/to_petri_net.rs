@@ -34,7 +34,6 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
 
   let mut petri_net = DefaultPetriNet::default();
 
-  let mut next_place_id = 0;
   let mut nodes_data = HashMap::new();
 
   for node in graph.all_nodes() {
@@ -44,8 +43,8 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
       .ok_or_else(|| GraphToPetriNetConversionError::NodeDataIsEmpty(node.id))?;
     let t_id = petri_net.add_transition(Transition::empty(name.clone(), Some(name.clone())));
 
-    let in_place = petri_net.add_place(Place::with_name(format!("{next_place_id}")));
-    let out_place = petri_net.add_place(Place::with_name(format!("{}", next_place_id + 1)));
+    let in_place = petri_net.add_place(Place::with_name(format!("IN_{}", name)));
+    let out_place = petri_net.add_place(Place::with_name(format!("OUT_{}", name)));
 
     petri_net.connect_place_to_transition(&in_place, &t_id, None);
     petri_net.connect_transition_to_place(&t_id, &out_place, None);
@@ -58,7 +57,6 @@ pub fn convert_ecfg_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet
     }
 
     nodes_data.insert(node.id, (in_place, out_place));
-    next_place_id += 2;
   }
 
   for edge in graph.all_edges() {

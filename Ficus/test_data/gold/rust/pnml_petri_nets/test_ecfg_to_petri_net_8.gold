@@ -1,0 +1,218 @@
+<pnml>
+  <net>
+    <place id="IN_A">
+    </place>
+    <place id="IN_B">
+    </place>
+    <place id="IN_C">
+    </place>
+    <place id="IN_D">
+    </place>
+    <place id="IN_E">
+    </place>
+    <place id="IN_END">
+    </place>
+    <place id="IN_START">
+    </place>
+    <place id="IN_X">
+    </place>
+    <place id="OUT_A">
+    </place>
+    <place id="OUT_B">
+    </place>
+    <place id="OUT_C">
+    </place>
+    <place id="OUT_D">
+    </place>
+    <place id="OUT_E">
+    </place>
+    <place id="OUT_END">
+    </place>
+    <place id="OUT_START">
+    </place>
+    <place id="OUT_X">
+    </place>
+    <transition id="A">
+      <name>
+        <text>A</text>
+      </name>
+    </transition>
+    <transition id="B">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="C">
+      <name>
+        <text>C</text>
+      </name>
+    </transition>
+    <transition id="D">
+      <name>
+        <text>D</text>
+      </name>
+    </transition>
+    <transition id="E">
+      <name>
+        <text>E</text>
+      </name>
+    </transition>
+    <transition id="END">
+      <name>
+        <text>END</text>
+      </name>
+    </transition>
+    <transition id="START">
+      <name>
+        <text>START</text>
+      </name>
+    </transition>
+    <transition id="X">
+      <name>
+        <text>X</text>
+      </name>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="tau">
+      <name>
+        <text>tau</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="[{A}--{OUT_A}]">
+    </arc>
+    <arc id="[{B}--{OUT_B}]">
+    </arc>
+    <arc id="[{C}--{OUT_C}]">
+    </arc>
+    <arc id="[{D}--{OUT_D}]">
+    </arc>
+    <arc id="[{END}--{OUT_END}]">
+    </arc>
+    <arc id="[{E}--{OUT_E}]">
+    </arc>
+    <arc id="[{IN_A}--{A}]">
+    </arc>
+    <arc id="[{IN_B}--{B}]">
+    </arc>
+    <arc id="[{IN_C}--{C}]">
+    </arc>
+    <arc id="[{IN_D}--{D}]">
+    </arc>
+    <arc id="[{IN_END}--{END}]">
+    </arc>
+    <arc id="[{IN_E}--{E}]">
+    </arc>
+    <arc id="[{IN_START}--{START}]">
+    </arc>
+    <arc id="[{IN_X}--{X}]">
+    </arc>
+    <arc id="[{OUT_A}--{tau}]">
+    </arc>
+    <arc id="[{OUT_A}--{tau}]">
+    </arc>
+    <arc id="[{OUT_B}--{tau}]">
+    </arc>
+    <arc id="[{OUT_C}--{tau}]">
+    </arc>
+    <arc id="[{OUT_D}--{tau}]">
+    </arc>
+    <arc id="[{OUT_E}--{tau}]">
+    </arc>
+    <arc id="[{OUT_START}--{tau}]">
+    </arc>
+    <arc id="[{OUT_X}--{tau}]">
+    </arc>
+    <arc id="[{OUT_X}--{tau}]">
+    </arc>
+    <arc id="[{OUT_X}--{tau}]">
+    </arc>
+    <arc id="[{START}--{OUT_START}]">
+    </arc>
+    <arc id="[{X}--{OUT_X}]">
+    </arc>
+    <arc id="[{tau}--{IN_A}]">
+    </arc>
+    <arc id="[{tau}--{IN_B}]">
+    </arc>
+    <arc id="[{tau}--{IN_B}]">
+    </arc>
+    <arc id="[{tau}--{IN_C}]">
+    </arc>
+    <arc id="[{tau}--{IN_C}]">
+    </arc>
+    <arc id="[{tau}--{IN_D}]">
+    </arc>
+    <arc id="[{tau}--{IN_D}]">
+    </arc>
+    <arc id="[{tau}--{IN_END}]">
+    </arc>
+    <arc id="[{tau}--{IN_E}]">
+    </arc>
+    <arc id="[{tau}--{IN_X}]">
+    </arc>
+  </net>
+</pnml>
