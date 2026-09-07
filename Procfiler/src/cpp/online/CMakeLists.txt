@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.5)
+cmake_minimum_required(VERSION 4.2.0)
 
 add_compile_options(-fpermissive)
 project(ProcfilerOnline)
