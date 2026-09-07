@@ -1,7 +1,6 @@
-use std::any::Any;
-use std::cell::Cell;
 use crate::{ficus_proto::GrpcPipelinePartExecutionResult, grpc::events::kafka_events_handler::ProcessCaseMetadata};
 use ficus::utils::context_key::ContextKey;
+use std::{any::Any, cell::Cell};
 use uuid::Uuid;
 
 pub trait PipelineEventsHandler: Send + Sync {
@@ -41,7 +40,7 @@ pub struct GetContextValuesEvent<'a> {
 
 pub enum PipelinePartExecResult<'a> {
   Default(GetContextValuesEvent<'a>),
-  Recorded(Cell<GrpcPipelinePartExecutionResult>)
+  Recorded(Cell<GrpcPipelinePartExecutionResult>),
 }
 
 pub enum PipelineFinalResult {

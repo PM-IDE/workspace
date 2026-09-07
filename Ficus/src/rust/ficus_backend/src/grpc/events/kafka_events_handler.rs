@@ -9,10 +9,9 @@ use rdkafka::{
   ClientConfig,
   error::KafkaError,
   producer::{BaseProducer, BaseRecord},
+  util::Timeout,
 };
-use std::sync::Arc;
-use std::time::Duration;
-use rdkafka::util::Timeout;
+use std::{sync::Arc, time::Duration};
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -72,7 +71,7 @@ impl KafkaEventsHandler {
 impl PipelineEventsHandler for KafkaEventsHandler {
   fn handle(&self, event: &PipelineEvent) {
     match event {
-      PipelineEvent::GetContextValuesEvent(_) => {},
+      PipelineEvent::GetContextValuesEvent(_) => {}
       PipelineEvent::LogMessage(_) => {}
       PipelineEvent::FinalResult(result) => match result {
         PipelineFinalResult::Success(_) => {}

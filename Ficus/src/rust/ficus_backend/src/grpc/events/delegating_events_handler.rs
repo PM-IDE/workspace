@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use crate::grpc::events::events_handler::{PipelineEvent, PipelineEventsHandler};
+use std::sync::Arc;
 
 pub struct DelegatingEventsHandler {
   handlers: Vec<Arc<dyn PipelineEventsHandler>>,

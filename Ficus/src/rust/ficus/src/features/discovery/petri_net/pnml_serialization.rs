@@ -234,13 +234,7 @@ where
   all_arcs.sort_by(|(_, n1), (_, n2)| n1.cmp(n2));
 
   for (_, name) in all_arcs {
-    StartEndElementCookie::new_with_attrs(
-      writer,
-      ARC_TAG_NAME,
-      &vec![
-        (ID_ATTR_NAME, &name),
-      ],
-    )?;
+    StartEndElementCookie::new_with_attrs(writer, ARC_TAG_NAME, &vec![(ID_ATTR_NAME, &name)])?;
   }
 
   Ok(())
