@@ -1,7 +1,8 @@
 use crate::{
   ficus_proto::{
     GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGetAllContextValuesResult,
-    GrpcGetContextValueRequest, GrpcGuid, grpc_context_values_service_server::GrpcContextValuesService,
+    GrpcGetContextValueRequest, GrpcGuid, GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult,
+    grpc_context_values_service_server::GrpcContextValuesService,
   },
   grpc::converters::context_value_from_bytes,
 };
@@ -21,6 +22,7 @@ use uuid::Uuid;
 pub struct ContextValueService {
   context_values: Mutex<HashMap<String, GrpcContextKeyValue>>,
   contexts: Mutex<HashMap<String, HashMap<String, Uuid>>>,
+  offline_cv: Mutex<HashMap<(Uuid, Uuid), Vec<GrpcPipelinePartExecutionResult>>>,
 }
 
 impl ContextValueService {
@@ -28,6 +30,7 @@ impl ContextValueService {
     Self {
       context_values: Default::default(),
       contexts: Default::default(),
+      offline_cv: Default::default(),
     }
   }
 
@@ -105,6 +108,14 @@ impl ContextValueService {
         Some(id) => Ok(*id),
       },
     }
+  }
+
+  pub fn add_offline_context_values(&self, sub_id: Uuid, pipeline_id: Uuid, values: Vec<GrpcPipelinePartExecutionResult>) {
+    self.offline_cv.lock().unwrap().insert((sub_id, pipeline_id), values);
+  }
+
+  pub fn get_offline_context_values(&self, sub_id: Uuid, pipeline_id: Uuid) -> Option<Vec<GrpcPipelinePartExecutionResult>> {
+    self.offline_cv.lock().unwrap().get(&(sub_id, pipeline_id)).cloned()
   }
 }
 

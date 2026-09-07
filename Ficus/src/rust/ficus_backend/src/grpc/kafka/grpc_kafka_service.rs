@@ -10,8 +10,9 @@ use crate::{
     context_values_service::ContextValueService,
     events::{
       delegating_events_handler::DelegatingEventsHandler,
-      events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
+      events_handler::{PipelineEvent, PipelineEventsHandler, PipelineEventsHandlerWithRecords, PipelineFinalResult},
       grpc_events_handler::GrpcPipelineEventsHandler,
+      kafka_events_handler::ProcessCaseMetadata,
     },
     kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
   },
@@ -204,10 +205,11 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   ) -> Result<Response<Self::ExecutePipelineAndProduceToKafkaStream>, Status> {
     let (sender, receiver) = mpsc::channel(4);
     let kafka_handler = KafkaService::create_kafka_events_handler(request.get_ref().producer_metadata.as_ref())?;
-    let kafka_handler = Box::new(kafka_handler) as Box<dyn PipelineEventsHandler>;
-    let grpc_handler = Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>;
+    let kafka_handler = Arc::new(kafka_handler) as Arc<dyn PipelineEventsHandler>;
 
-    let handler = DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]);
+    let grpc_handler = Arc::new(GrpcPipelineEventsHandler::new_record_results(sender));
+
+    let handler = DelegatingEventsHandler::new(vec![kafka_handler, Arc::clone(&grpc_handler) as Arc<dyn PipelineEventsHandler>]);
     let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
     let dto = PipelineExecutionDto::new(handler);
 
@@ -221,6 +223,9 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         return Err(Status::invalid_argument(message));
       }
     };
+
+    let cv_service = Arc::clone(&self.cv_service);
+    let kafka_service = Arc::clone(&self.kafka_service);
 
     tokio::task::spawn_blocking(move || {
       let pipeline = request
@@ -236,33 +241,57 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
       let case_info = request.case_info.as_ref().expect("Case info must be supplied");
       let case_name: Arc<str> = case_info.case_name.clone().into();
       let process_name = case_info.process_name.clone();
-      let pipeline_id = Uuid::parse_str(request.pipeline_id.as_ref().expect("Must be supplied").guid.as_str());
-      let subscription_id = Uuid::parse_str(request.subscription_id.as_ref().expect("Must be supplied").guid.as_str());
+      let pipeline_id = Uuid::parse_str(request.pipeline_id.as_ref().expect("Must be supplied").guid.as_str()).unwrap();
+      let subscription_id = Uuid::parse_str(request.subscription_id.as_ref().expect("Must be supplied").guid.as_str()).unwrap();
       let pipeline_name = request.pipeline_name.clone();
       let subscription_name = request.subscription_name.clone();
 
       let context = KafkaService::create_pipeline_execution_context_from_proxy(pipeline, &context_values, &dto);
 
-      let execution_result = context.execute_grpc_pipeline(move |context| {
-        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), subscription_id.unwrap());
-        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.unwrap());
-        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name.into());
-        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name.into());
+      let execution_result = context.execute_grpc_pipeline_and_fill_context_values(
+        |context| {
+          context.put_concrete(SUBSCRIPTION_ID_KEY.key(), subscription_id);
+          context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id);
+          context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name.clone().into());
+          context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name.clone().into());
 
-        context.put_concrete(PROCESS_NAME_KEY.key(), process_name.into());
-        context.put_concrete(
-          CASE_NAME_KEY.key(),
-          CaseName {
-            display_name: case_name.clone(),
-            name_parts: vec![case_name],
-          },
-        );
+          context.put_concrete(PROCESS_NAME_KEY.key(), process_name.clone().into());
+          context.put_concrete(
+            CASE_NAME_KEY.key(),
+            CaseName {
+              display_name: case_name.clone(),
+              name_parts: vec![case_name],
+            },
+          );
 
-        Ok(())
-      });
+          Ok(())
+        },
+        Arc::clone(&cv_service),
+      );
 
       match execution_result {
-        Ok((uuid, _)) => {
+        Ok(uuid) => {
+          let handler = grpc_handler as Arc<dyn PipelineEventsHandlerWithRecords>;
+
+          let events = handler.drain_recorded_events().expect("must be some");
+          cv_service.add_offline_context_values(subscription_id, pipeline_id, events);
+
+          let case_name = Arc::from(case_info.case_name.as_str());
+          let metadata = ProcessCaseMetadata {
+            pipeline_id: Some(pipeline_id),
+            pipeline_name: Some(Arc::from(pipeline_name.as_str())),
+            subscription_name: Some(Arc::from(subscription_name.as_str())),
+            subscription_id: Some(subscription_id),
+            process_name: Arc::from(case_info.process_name.as_str()),
+            metadata: vec![],
+            case_name: CaseName {
+              display_name: Arc::clone(&case_name),
+              name_parts: vec![case_name],
+            },
+          };
+
+          dto.events_handler.handle(&PipelineEvent::ProcessCaseMetadata(metadata));
+
           dto
             .events_handler
             .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));

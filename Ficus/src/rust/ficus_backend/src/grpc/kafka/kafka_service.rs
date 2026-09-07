@@ -6,7 +6,7 @@ use crate::{
   grpc::{
     context_values_service::ContextValueService,
     events::{
-      events_handler::{EmptyPipelineEventsHandler, PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
+      events_handler::{EmptyPipelineEventsHandler, PipelineEvent, PipelineEventsHandler, PipelineFinalResult, PipelinePartExecResult},
       grpc_events_handler::GrpcPipelineEventsHandler,
       kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer, ProcessCaseMetadata},
     },
@@ -36,7 +36,8 @@ use ficus::{
 use log::{debug, error, warn};
 use rdkafka::{ClientConfig, error::KafkaError};
 use std::{
-  collections::HashMap,
+  cell::Cell,
+  collections::{HashMap, HashSet},
   sync::{Arc, Mutex},
 };
 use tonic::Status;
@@ -265,6 +266,16 @@ impl KafkaService {
     case_name: &str,
     handler: Arc<GrpcPipelineEventsHandler>,
   ) -> Result<Uuid, Status> {
+    if let Some(values) = self.cv_service.get_offline_context_values(sub_id, pipeline_id) {
+      for event in values {
+        handler.handle(&PipelineEvent::GetContextValuesEvent(PipelinePartExecResult::Recorded(Cell::new(
+          event,
+        ))));
+      }
+
+      return Ok(Uuid::new_v4());
+    }
+
     let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
     let Some(kafka_subscription) = map.get(&sub_id).cloned() else {
       warn!("Subscription {} not found. Map: {:?}", sub_id, map.keys());
