@@ -86,6 +86,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
+        with:
+          version: 4.2.0
+
       - name: Setup docker
         uses: docker/setup-qemu-action@v3
 
