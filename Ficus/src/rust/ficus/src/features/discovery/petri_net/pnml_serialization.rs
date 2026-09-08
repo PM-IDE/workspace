@@ -130,7 +130,7 @@ fn write_final_markings<TTransitionData: ToString, TArcData>(
     let place_name = create_place_id(net.place(&m.place_id()), use_names_as_ids);
     let p_cookie = StartEndElementCookie::new_with_attrs(writer, PLACE_TAG_NAME, &vec![(ID_REF_ATTR, &place_name)])?;
 
-    let t_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
+    let t_cookie = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
 
     write_text(writer, &m.tokens_count().to_string())?;
 
@@ -164,13 +164,13 @@ where
       writer,
       TRANSITION_TAG_NAME,
       &vec![(ID_ATTR_NAME, create_transition_id(transition, use_names_as_ids).as_str())],
-    );
+    )?;
 
     if let Some(data) = transition.data() {
-      let name = StartEndElementCookie::new(writer, NAME_TAG_NAME);
-      let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
+      let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
+      let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
 
-      write_text(writer, &data.to_string())?;
+      write_text(writer, &clean_string(data.to_string()))?;
 
       drop(text);
       drop(name);
@@ -185,7 +185,7 @@ where
           (VERSION_ATTR_NAME, VERSION_VALUE),
           (ACTIVITY_ATTR_NAME, SILENT_ACTIVITY),
         ],
-      );
+      )?;
     }
 
     drop(cookie)
@@ -216,44 +216,74 @@ where
 {
   let mut all_arcs = vec![];
   for transition in net.all_transitions() {
-    all_arcs.extend(patch_arcs_list(transition.outgoing_arcs(), use_names_as_ids, |arc| {
-      create_arc_name(
-        create_transition_id(transition, use_names_as_ids),
-        create_place_id(net.place(&arc.place_id()), use_names_as_ids),
-      )
-    }));
+    all_arcs.extend(patch_arcs_list(
+      net,
+      transition,
+      false,
+      transition.outgoing_arcs(),
+      use_names_as_ids,
+      |arc| {
+        create_arc_name(
+          create_transition_id(transition, use_names_as_ids),
+          create_place_id(net.place(&arc.place_id()), use_names_as_ids),
+        )
+      },
+    ));
 
-    all_arcs.extend(patch_arcs_list(transition.incoming_arcs(), use_names_as_ids, |arc| {
-      create_arc_name(
-        create_place_id(net.place(&arc.place_id()), use_names_as_ids),
-        create_transition_id(transition, use_names_as_ids),
-      )
-    }));
+    all_arcs.extend(patch_arcs_list(
+      net,
+      transition,
+      true,
+      transition.incoming_arcs(),
+      use_names_as_ids,
+      |arc| {
+        create_arc_name(
+          create_place_id(net.place(&arc.place_id()), use_names_as_ids),
+          create_transition_id(transition, use_names_as_ids),
+        )
+      },
+    ));
   }
 
-  all_arcs.sort_by(|(_, n1), (_, n2)| n1.cmp(n2));
+  all_arcs.sort_by(|(_, n1, ..), (_, n2, ..)| n1.cmp(n2));
 
-  for (_, name) in all_arcs {
-    StartEndElementCookie::new_with_attrs(writer, ARC_TAG_NAME, &vec![(ID_ATTR_NAME, &name)])?;
+  for (_, name, from, to) in all_arcs {
+    StartEndElementCookie::new_with_attrs(
+      writer,
+      ARC_TAG_NAME,
+      &vec![(ID_ATTR_NAME, &name), (SOURCE_ATTR_NAME, &from), (TARGET_ATTR_NAME, &to)],
+    )?;
   }
 
   Ok(())
 }
 
-fn patch_arcs_list<TArcData>(
-  arcs: &[PetriNetArc<TArcData>],
+fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
+  net: &'a PetriNet<TTransitionData, TArcData>,
+  transition: &'a Transition<TTransitionData, TArcData>,
+  incoming_arcs: bool,
+  arcs: &'a [PetriNetArc<TArcData>],
   use_names_as_ids: bool,
   names_creator: impl Fn(&PetriNetArc<TArcData>) -> String,
-) -> Vec<(&PetriNetArc<TArcData>, String)> {
-  let mut arcs: Vec<(&PetriNetArc<TArcData>, String)> = arcs
+) -> Vec<(&'a PetriNetArc<TArcData>, String, String, String)> {
+  let mut arcs: Vec<_> = arcs
     .iter()
     .map(|arc| {
+      let mut from = create_place_id(net.place(&arc.place_id()), use_names_as_ids);
+      let mut to = create_transition_id(transition, use_names_as_ids);
+
+      if !incoming_arcs {
+        (from, to) = (to, from);
+      }
+
       (
         arc,
-        match use_names_as_ids {
+        clean_string(match use_names_as_ids {
           true => names_creator(arc),
           false => arc.id().to_string(),
-        },
+        }),
+        from,
+        to,
       )
     })
     .collect();
@@ -263,22 +293,26 @@ fn patch_arcs_list<TArcData>(
 }
 
 fn create_place_id(place: &Place, use_names_as_ids: bool) -> String {
-  match use_names_as_ids {
+  clean_string(match use_names_as_ids {
     true => place.name().to_owned(),
     false => place.id().to_string(),
-  }
+  })
+}
+
+fn clean_string(s: String) -> String {
+  s.replace('\n', "")
 }
 
 fn create_transition_id<TTransitionData, TArcData>(transition: &Transition<TTransitionData, TArcData>, use_names_as_ids: bool) -> String
 where
   TTransitionData: ToString,
 {
-  match use_names_as_ids {
+  clean_string(match use_names_as_ids {
     true => transition.name().to_string(),
     false => transition.id().to_string(),
-  }
+  })
 }
 
 fn create_arc_name(from_name: String, to_name: String) -> String {
-  format!("[{{{}}}--{{{}}}]", from_name, to_name)
+  clean_string(format!("[{{{}}}--{{{}}}]", from_name, to_name))
 }
