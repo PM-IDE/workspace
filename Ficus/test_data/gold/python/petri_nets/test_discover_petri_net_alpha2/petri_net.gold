@@ -9,6 +9,9 @@
     <place id="EndPlace">
     </place>
     <place id="StartPlace">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
     </place>
     <transition id="A">
       <name>
@@ -35,21 +38,28 @@
         <text>C</text>
       </name>
     </transition>
-    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]" source="({ARTIFICIAL_START}, {A})" target="A">
+    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]">
     </arc>
-    <arc id="[{A}--{({A}, {C})}]" target="({A}, {C})" source="A">
+    <arc id="[{({A}, {C})}--{C}]">
     </arc>
-    <arc id="[{({C}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]" source="({C}, {ARTIFICIAL_END})" target="ARTIFICIAL_END">
+    <arc id="[{({C}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]">
     </arc>
-    <arc id="[{ARTIFICIAL_END}--{EndPlace}]" target="EndPlace" source="ARTIFICIAL_END">
+    <arc id="[{ARTIFICIAL_END}--{EndPlace}]">
     </arc>
-    <arc id="[{StartPlace}--{ARTIFICIAL_START}]" source="StartPlace" target="ARTIFICIAL_START">
+    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]">
     </arc>
-    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]" target="({ARTIFICIAL_START}, {A})" source="ARTIFICIAL_START">
+    <arc id="[{A}--{({A}, {C})}]">
     </arc>
-    <arc id="[{({A}, {C})}--{C}]" source="({A}, {C})" target="C">
+    <arc id="[{C}--{({C}, {ARTIFICIAL_END})}]">
     </arc>
-    <arc id="[{C}--{({C}, {ARTIFICIAL_END})}]" target="({C}, {ARTIFICIAL_END})" source="C">
+    <arc id="[{StartPlace}--{ARTIFICIAL_START}]">
     </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="EndPlace">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
   </net>
 </pnml>

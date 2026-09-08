@@ -11,6 +11,9 @@
     <place id="EndPlace">
     </place>
     <place id="StartPlace">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
     </place>
     <transition id="A">
       <name>
@@ -42,29 +45,36 @@
         <text>D</text>
       </name>
     </transition>
-    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]" source="({ARTIFICIAL_START}, {A})" target="A">
+    <arc id="[{({A,D}, {B})}--{B}]">
     </arc>
-    <arc id="[{A}--{({A,D}, {B})}]" target="({A,D}, {B})" source="A">
+    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]">
     </arc>
-    <arc id="[{({C}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]" source="({C}, {ARTIFICIAL_END})" target="ARTIFICIAL_END">
+    <arc id="[{({B}, {C,D})}--{C}]">
     </arc>
-    <arc id="[{ARTIFICIAL_END}--{EndPlace}]" target="EndPlace" source="ARTIFICIAL_END">
+    <arc id="[{({B}, {C,D})}--{D}]">
     </arc>
-    <arc id="[{StartPlace}--{ARTIFICIAL_START}]" source="StartPlace" target="ARTIFICIAL_START">
+    <arc id="[{({C}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]">
     </arc>
-    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]" target="({ARTIFICIAL_START}, {A})" source="ARTIFICIAL_START">
+    <arc id="[{ARTIFICIAL_END}--{EndPlace}]">
     </arc>
-    <arc id="[{({A,D}, {B})}--{B}]" source="({A,D}, {B})" target="B">
+    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]">
     </arc>
-    <arc id="[{B}--{({B}, {C,D})}]" target="({B}, {C,D})" source="B">
+    <arc id="[{A}--{({A,D}, {B})}]">
     </arc>
-    <arc id="[{({B}, {C,D})}--{C}]" source="({B}, {C,D})" target="C">
+    <arc id="[{B}--{({B}, {C,D})}]">
     </arc>
-    <arc id="[{C}--{({C}, {ARTIFICIAL_END})}]" target="({C}, {ARTIFICIAL_END})" source="C">
+    <arc id="[{C}--{({C}, {ARTIFICIAL_END})}]">
     </arc>
-    <arc id="[{({B}, {C,D})}--{D}]" source="({B}, {C,D})" target="D">
+    <arc id="[{D}--{({A,D}, {B})}]">
     </arc>
-    <arc id="[{D}--{({A,D}, {B})}]" target="({A,D}, {B})" source="D">
+    <arc id="[{StartPlace}--{ARTIFICIAL_START}]">
     </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="EndPlace">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
   </net>
 </pnml>
