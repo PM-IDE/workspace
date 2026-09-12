@@ -1,5 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
 
+COPY --from=mcr.microsoft.com/dotnet/sdk:9.0 /usr/share/dotnet /usr/share/dotnet
+COPY --from=mcr.microsoft.com/dotnet/sdk:8.0 /usr/share/dotnet /usr/share/dotnet
+
 RUN apt update -y && apt upgrade -y
 RUN apt-get update -y
 
