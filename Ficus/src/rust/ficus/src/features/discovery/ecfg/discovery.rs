@@ -19,7 +19,6 @@ use crate::{
     user_data::user_data::UserData,
   },
 };
-use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, VecDeque},
@@ -145,17 +144,19 @@ fn merge_same_outgoing_nodes<T: PartialEq + Clone + Debug>(context: &mut Discove
         continue;
       }
 
-      let groups = graph
-        .outgoing_nodes(&n)
-        .into_iter()
-        .chunk_by(|n| graph.node(n).unwrap().data.clone())
-        .into_iter()
-        .map(|(k, g)| (k, g.collect::<Vec<_>>()))
-        .filter(|(_, g)| g.len() > 1)
-        .collect::<Vec<_>>();
+      let mut groups = HashMap::<_, Vec<_>>::new();
+      for n in graph.outgoing_nodes(&n) {
+        let key = graph.node(&n).unwrap().data.clone();
+        groups.entry(key).or_default().push(n);
+      }
 
-      let any_change = !groups.is_empty();
+      let mut any_change = false;
       for (_, group) in groups.into_iter() {
+        if group.len() < 2 {
+          continue;
+        }
+
+        any_change = true;
         let new_node = create_new_node_from_nodes(context, graph, &group);
         graph.connect_nodes(&n, &new_node, NodesConnectionData::default());
 
