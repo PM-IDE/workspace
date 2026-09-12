@@ -52,41 +52,41 @@
         <text>F</text>
       </name>
     </transition>
-    <arc id="[{({A,B}, {C})}--{C}]">
+    <arc id="[{({A,B}, {C})}--{C}]" source="({A,B}, {C})" target="C">
     </arc>
-    <arc id="[{({ARTIFICIAL_START}, {A,B})}--{A}]">
+    <arc id="[{({ARTIFICIAL_START}, {A,B})}--{A}]" source="({ARTIFICIAL_START}, {A,B})" target="A">
     </arc>
-    <arc id="[{({ARTIFICIAL_START}, {A,B})}--{B}]">
+    <arc id="[{({ARTIFICIAL_START}, {A,B})}--{B}]" source="({ARTIFICIAL_START}, {A,B})" target="B">
     </arc>
-    <arc id="[{({A}, {D,F})}--{D}]">
+    <arc id="[{({A}, {D,F})}--{D}]" source="({A}, {D,F})" target="D">
     </arc>
-    <arc id="[{({A}, {D,F})}--{F}]">
+    <arc id="[{({A}, {D,F})}--{F}]" source="({A}, {D,F})" target="F">
     </arc>
-    <arc id="[{({B,F}, {E})}--{E}]">
+    <arc id="[{({B,F}, {E})}--{E}]" source="({B,F}, {E})" target="E">
     </arc>
-    <arc id="[{({C}, {D,E})}--{D}]">
+    <arc id="[{({C}, {D,E})}--{D}]" source="({C}, {D,E})" target="D">
     </arc>
-    <arc id="[{({C}, {D,E})}--{E}]">
+    <arc id="[{({C}, {D,E})}--{E}]" source="({C}, {D,E})" target="E">
     </arc>
-    <arc id="[{({D,E}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]">
+    <arc id="[{({D,E}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]" source="({D,E}, {ARTIFICIAL_END})" target="ARTIFICIAL_END">
     </arc>
-    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A,B})}]">
+    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A,B})}]" source="ARTIFICIAL_START" target="({ARTIFICIAL_START}, {A,B})">
     </arc>
-    <arc id="[{A}--{({A,B}, {C})}]">
+    <arc id="[{A}--{({A,B}, {C})}]" source="A" target="({A,B}, {C})">
     </arc>
-    <arc id="[{A}--{({A}, {D,F})}]">
+    <arc id="[{A}--{({A}, {D,F})}]" source="A" target="({A}, {D,F})">
     </arc>
-    <arc id="[{B}--{({A,B}, {C})}]">
+    <arc id="[{B}--{({A,B}, {C})}]" source="B" target="({A,B}, {C})">
     </arc>
-    <arc id="[{B}--{({B,F}, {E})}]">
+    <arc id="[{B}--{({B,F}, {E})}]" source="B" target="({B,F}, {E})">
     </arc>
-    <arc id="[{C}--{({C}, {D,E})}]">
+    <arc id="[{C}--{({C}, {D,E})}]" source="C" target="({C}, {D,E})">
     </arc>
-    <arc id="[{D}--{({D,E}, {ARTIFICIAL_END})}]">
+    <arc id="[{D}--{({D,E}, {ARTIFICIAL_END})}]" source="D" target="({D,E}, {ARTIFICIAL_END})">
     </arc>
-    <arc id="[{E}--{({D,E}, {ARTIFICIAL_END})}]">
+    <arc id="[{E}--{({D,E}, {ARTIFICIAL_END})}]" source="E" target="({D,E}, {ARTIFICIAL_END})">
     </arc>
-    <arc id="[{F}--{({B,F}, {E})}]">
+    <arc id="[{F}--{({B,F}, {E})}]" source="F" target="({B,F}, {E})">
     </arc>
   </net>
 </pnml>

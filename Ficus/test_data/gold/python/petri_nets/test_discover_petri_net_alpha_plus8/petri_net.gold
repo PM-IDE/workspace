@@ -47,29 +47,29 @@
         <text>D</text>
       </name>
     </transition>
-    <arc id="[{({A,C}, {C,D})}--{B}]">
+    <arc id="[{({A,C}, {C,D})}--{B}]" source="({A,C}, {C,D})" target="B">
     </arc>
-    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]">
+    <arc id="[{({ARTIFICIAL_START}, {A})}--{A}]" source="({ARTIFICIAL_START}, {A})" target="A">
     </arc>
-    <arc id="[{({A}, {D})}--{D}]">
+    <arc id="[{({A}, {D})}--{D}]" source="({A}, {D})" target="D">
     </arc>
-    <arc id="[{({B}, {B})}--{C}]">
+    <arc id="[{({B}, {B})}--{C}]" source="({B}, {B})" target="C">
     </arc>
-    <arc id="[{({D}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]">
+    <arc id="[{({D}, {ARTIFICIAL_END})}--{ARTIFICIAL_END}]" source="({D}, {ARTIFICIAL_END})" target="ARTIFICIAL_END">
     </arc>
-    <arc id="[{ARTIFICIAL_END}--{EndPlace}]">
+    <arc id="[{ARTIFICIAL_END}--{EndPlace}]" source="ARTIFICIAL_END" target="EndPlace">
     </arc>
-    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]">
+    <arc id="[{ARTIFICIAL_START}--{({ARTIFICIAL_START}, {A})}]" source="ARTIFICIAL_START" target="({ARTIFICIAL_START}, {A})">
     </arc>
-    <arc id="[{A}--{({A}, {D})}]">
+    <arc id="[{A}--{({A}, {D})}]" source="A" target="({A}, {D})">
     </arc>
-    <arc id="[{B}--{({A,C}, {C,D})}]">
+    <arc id="[{B}--{({A,C}, {C,D})}]" source="B" target="({A,C}, {C,D})">
     </arc>
-    <arc id="[{C}--{({B}, {B})}]">
+    <arc id="[{C}--{({B}, {B})}]" source="C" target="({B}, {B})">
     </arc>
-    <arc id="[{D}--{({D}, {ARTIFICIAL_END})}]">
+    <arc id="[{D}--{({D}, {ARTIFICIAL_END})}]" source="D" target="({D}, {ARTIFICIAL_END})">
     </arc>
-    <arc id="[{StartPlace}--{ARTIFICIAL_START}]">
+    <arc id="[{StartPlace}--{ARTIFICIAL_START}]" source="StartPlace" target="ARTIFICIAL_START">
     </arc>
     <finalmarkings>
       <marking>
