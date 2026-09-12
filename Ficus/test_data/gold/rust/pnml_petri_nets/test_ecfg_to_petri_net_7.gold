@@ -220,117 +220,117 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="[{A}--{OUT_A}]">
+    <arc id="[{A}--{OUT_A}]" source="A" target="OUT_A">
     </arc>
-    <arc id="[{B}--{OUT_B}]">
+    <arc id="[{B}--{OUT_B}]" source="B" target="OUT_B">
     </arc>
-    <arc id="[{C}--{OUT_C}]">
+    <arc id="[{C}--{OUT_C}]" source="C" target="OUT_C">
     </arc>
-    <arc id="[{D}--{OUT_D}]">
+    <arc id="[{D}--{OUT_D}]" source="D" target="OUT_D">
     </arc>
-    <arc id="[{END}--{OUT_END}]">
+    <arc id="[{END}--{OUT_END}]" source="END" target="OUT_END">
     </arc>
-    <arc id="[{E}--{OUT_E}]">
+    <arc id="[{E}--{OUT_E}]" source="E" target="OUT_E">
     </arc>
-    <arc id="[{IN_A}--{A}]">
+    <arc id="[{IN_A}--{A}]" source="IN_A" target="A">
     </arc>
-    <arc id="[{IN_B}--{B}]">
+    <arc id="[{IN_B}--{B}]" source="IN_B" target="B">
     </arc>
-    <arc id="[{IN_C}--{C}]">
+    <arc id="[{IN_C}--{C}]" source="IN_C" target="C">
     </arc>
-    <arc id="[{IN_D}--{D}]">
+    <arc id="[{IN_D}--{D}]" source="IN_D" target="D">
     </arc>
-    <arc id="[{IN_END}--{END}]">
+    <arc id="[{IN_END}--{END}]" source="IN_END" target="END">
     </arc>
-    <arc id="[{IN_E}--{E}]">
+    <arc id="[{IN_E}--{E}]" source="IN_E" target="E">
     </arc>
-    <arc id="[{IN_START}--{START}]">
+    <arc id="[{IN_START}--{START}]" source="IN_START" target="START">
     </arc>
-    <arc id="[{IN_W}--{W}]">
+    <arc id="[{IN_W}--{W}]" source="IN_W" target="W">
     </arc>
-    <arc id="[{IN_X}--{X}]">
+    <arc id="[{IN_X}--{X}]" source="IN_X" target="X">
     </arc>
-    <arc id="[{IN_Y}--{Y}]">
+    <arc id="[{IN_Y}--{Y}]" source="IN_Y" target="Y">
     </arc>
-    <arc id="[{IN_Z}--{Z}]">
+    <arc id="[{IN_Z}--{Z}]" source="IN_Z" target="Z">
     </arc>
-    <arc id="[{IN_Z}--{Z}]">
+    <arc id="[{IN_Z}--{Z}]" source="IN_Z" target="Z">
     </arc>
-    <arc id="[{OUT_A}--{tau}]">
+    <arc id="[{OUT_A}--{tau}]" source="OUT_A" target="tau">
     </arc>
-    <arc id="[{OUT_A}--{tau}]">
+    <arc id="[{OUT_A}--{tau}]" source="OUT_A" target="tau">
     </arc>
-    <arc id="[{OUT_B}--{tau}]">
+    <arc id="[{OUT_B}--{tau}]" source="OUT_B" target="tau">
     </arc>
-    <arc id="[{OUT_B}--{tau}]">
+    <arc id="[{OUT_B}--{tau}]" source="OUT_B" target="tau">
     </arc>
-    <arc id="[{OUT_C}--{tau}]">
+    <arc id="[{OUT_C}--{tau}]" source="OUT_C" target="tau">
     </arc>
-    <arc id="[{OUT_C}--{tau}]">
+    <arc id="[{OUT_C}--{tau}]" source="OUT_C" target="tau">
     </arc>
-    <arc id="[{OUT_D}--{tau}]">
+    <arc id="[{OUT_D}--{tau}]" source="OUT_D" target="tau">
     </arc>
-    <arc id="[{OUT_D}--{tau}]">
+    <arc id="[{OUT_D}--{tau}]" source="OUT_D" target="tau">
     </arc>
-    <arc id="[{OUT_E}--{tau}]">
+    <arc id="[{OUT_E}--{tau}]" source="OUT_E" target="tau">
     </arc>
-    <arc id="[{OUT_START}--{tau}]">
+    <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
     </arc>
-    <arc id="[{OUT_START}--{tau}]">
+    <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
     </arc>
-    <arc id="[{OUT_W}--{tau}]">
+    <arc id="[{OUT_W}--{tau}]" source="OUT_W" target="tau">
     </arc>
-    <arc id="[{OUT_X}--{tau}]">
+    <arc id="[{OUT_X}--{tau}]" source="OUT_X" target="tau">
     </arc>
-    <arc id="[{OUT_Y}--{tau}]">
+    <arc id="[{OUT_Y}--{tau}]" source="OUT_Y" target="tau">
     </arc>
-    <arc id="[{OUT_Z}--{tau}]">
+    <arc id="[{OUT_Z}--{tau}]" source="OUT_Z" target="tau">
     </arc>
-    <arc id="[{OUT_Z}--{tau}]">
+    <arc id="[{OUT_Z}--{tau}]" source="OUT_Z" target="tau">
     </arc>
-    <arc id="[{START}--{OUT_START}]">
+    <arc id="[{START}--{OUT_START}]" source="START" target="OUT_START">
     </arc>
-    <arc id="[{W}--{OUT_W}]">
+    <arc id="[{W}--{OUT_W}]" source="W" target="OUT_W">
     </arc>
-    <arc id="[{X}--{OUT_X}]">
+    <arc id="[{X}--{OUT_X}]" source="X" target="OUT_X">
     </arc>
-    <arc id="[{Y}--{OUT_Y}]">
+    <arc id="[{Y}--{OUT_Y}]" source="Y" target="OUT_Y">
     </arc>
-    <arc id="[{Z}--{OUT_Z}]">
+    <arc id="[{Z}--{OUT_Z}]" source="Z" target="OUT_Z">
     </arc>
-    <arc id="[{Z}--{OUT_Z}]">
+    <arc id="[{Z}--{OUT_Z}]" source="Z" target="OUT_Z">
     </arc>
-    <arc id="[{tau}--{IN_A}]">
+    <arc id="[{tau}--{IN_A}]" source="tau" target="IN_A">
     </arc>
-    <arc id="[{tau}--{IN_A}]">
+    <arc id="[{tau}--{IN_A}]" source="tau" target="IN_A">
     </arc>
-    <arc id="[{tau}--{IN_B}]">
+    <arc id="[{tau}--{IN_B}]" source="tau" target="IN_B">
     </arc>
-    <arc id="[{tau}--{IN_B}]">
+    <arc id="[{tau}--{IN_B}]" source="tau" target="IN_B">
     </arc>
-    <arc id="[{tau}--{IN_C}]">
+    <arc id="[{tau}--{IN_C}]" source="tau" target="IN_C">
     </arc>
-    <arc id="[{tau}--{IN_C}]">
+    <arc id="[{tau}--{IN_C}]" source="tau" target="IN_C">
     </arc>
-    <arc id="[{tau}--{IN_D}]">
+    <arc id="[{tau}--{IN_D}]" source="tau" target="IN_D">
     </arc>
-    <arc id="[{tau}--{IN_D}]">
+    <arc id="[{tau}--{IN_D}]" source="tau" target="IN_D">
     </arc>
-    <arc id="[{tau}--{IN_END}]">
+    <arc id="[{tau}--{IN_END}]" source="tau" target="IN_END">
     </arc>
-    <arc id="[{tau}--{IN_E}]">
+    <arc id="[{tau}--{IN_E}]" source="tau" target="IN_E">
     </arc>
-    <arc id="[{tau}--{IN_E}]">
+    <arc id="[{tau}--{IN_E}]" source="tau" target="IN_E">
     </arc>
-    <arc id="[{tau}--{IN_W}]">
+    <arc id="[{tau}--{IN_W}]" source="tau" target="IN_W">
     </arc>
-    <arc id="[{tau}--{IN_X}]">
+    <arc id="[{tau}--{IN_X}]" source="tau" target="IN_X">
     </arc>
-    <arc id="[{tau}--{IN_Y}]">
+    <arc id="[{tau}--{IN_Y}]" source="tau" target="IN_Y">
     </arc>
-    <arc id="[{tau}--{IN_Z}]">
+    <arc id="[{tau}--{IN_Z}]" source="tau" target="IN_Z">
     </arc>
-    <arc id="[{tau}--{IN_Z}]">
+    <arc id="[{tau}--{IN_Z}]" source="tau" target="IN_Z">
     </arc>
   </net>
 </pnml>

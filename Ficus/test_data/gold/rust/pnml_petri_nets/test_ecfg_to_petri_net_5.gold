@@ -25,17 +25,17 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="[{END}--{OUT_END}]">
+    <arc id="[{END}--{OUT_END}]" source="END" target="OUT_END">
     </arc>
-    <arc id="[{IN_END}--{END}]">
+    <arc id="[{IN_END}--{END}]" source="IN_END" target="END">
     </arc>
-    <arc id="[{IN_START}--{START}]">
+    <arc id="[{IN_START}--{START}]" source="IN_START" target="START">
     </arc>
-    <arc id="[{OUT_START}--{tau}]">
+    <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
     </arc>
-    <arc id="[{START}--{OUT_START}]">
+    <arc id="[{START}--{OUT_START}]" source="START" target="OUT_START">
     </arc>
-    <arc id="[{tau}--{IN_END}]">
+    <arc id="[{tau}--{IN_END}]" source="tau" target="IN_END">
     </arc>
   </net>
 </pnml>

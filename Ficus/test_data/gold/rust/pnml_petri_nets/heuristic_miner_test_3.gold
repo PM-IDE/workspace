@@ -49,31 +49,31 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="[{A}--{post_A}]">
+    <arc id="[{A}--{post_A}]" source="A" target="post_A">
     </arc>
-    <arc id="[{B}--{post_B}]">
+    <arc id="[{B}--{post_B}]" source="B" target="post_B">
     </arc>
-    <arc id="[{C}--{post_C}]">
+    <arc id="[{C}--{post_C}]" source="C" target="post_C">
     </arc>
-    <arc id="[{F}--{post_F}]">
+    <arc id="[{F}--{post_F}]" source="F" target="post_F">
     </arc>
-    <arc id="[{post_A}--{tau}]">
+    <arc id="[{post_A}--{tau}]" source="post_A" target="tau">
     </arc>
-    <arc id="[{post_B}--{C}]">
+    <arc id="[{post_B}--{C}]" source="post_B" target="C">
     </arc>
-    <arc id="[{post_C}--{D}]">
+    <arc id="[{post_C}--{D}]" source="post_C" target="D">
     </arc>
-    <arc id="[{post_C}--{E}]">
+    <arc id="[{post_C}--{E}]" source="post_C" target="E">
     </arc>
-    <arc id="[{post_F}--{E}]">
+    <arc id="[{post_F}--{E}]" source="post_F" target="E">
     </arc>
-    <arc id="[{pre_C}--{C}]">
+    <arc id="[{pre_C}--{C}]" source="pre_C" target="C">
     </arc>
-    <arc id="[{pre_F}--{F}]">
+    <arc id="[{pre_F}--{F}]" source="pre_F" target="F">
     </arc>
-    <arc id="[{tau}--{pre_C}]">
+    <arc id="[{tau}--{pre_C}]" source="tau" target="pre_C">
     </arc>
-    <arc id="[{tau}--{pre_F}]">
+    <arc id="[{tau}--{pre_F}]" source="tau" target="pre_F">
     </arc>
   </net>
 </pnml>
