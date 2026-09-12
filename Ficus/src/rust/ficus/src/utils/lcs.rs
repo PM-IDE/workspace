@@ -79,9 +79,26 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
     }
   }
 
+  let indices_in_first_sequence = shift_indices_to_left(first, &indices_in_first_sequence);
+  let indices_in_second_sequence = shift_indices_to_left(second, &indices_in_second_sequence);
+
   LCSSearchResult {
     lcs: lcs.into_iter().rev().collect(),
-    indices_in_first_sequence: indices_in_first_sequence.into_iter().rev().collect(),
-    indices_in_second_sequence: indices_in_second_sequence.into_iter().rev().collect(),
+    indices_in_first_sequence,
+    indices_in_second_sequence,
   }
+}
+
+pub fn shift_indices_to_left<T: PartialEq>(s: &[T], indices: &[usize]) -> Vec<usize> {
+  let mut idx = 0;
+  let mut result = vec![];
+
+  for (i, c) in s.iter().enumerate() {
+    if c.eq(&s[indices[indices.len() - 1 - idx]]) {
+      result.push(i);
+      idx += 1;
+    }
+  }
+
+  result
 }
