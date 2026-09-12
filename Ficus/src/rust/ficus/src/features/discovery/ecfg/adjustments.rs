@@ -33,7 +33,7 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
   let mut processed_nodes = HashSet::new();
   let mut sequences = vec![];
 
-  let check_node = |node_id| graph.incoming_edges(node_id).len() == 1 && graph.outgoing_nodes(node_id).len() == 1;
+  let check_node = |node_id| graph.incoming_edges(&node_id).len() == 1 && graph.outgoing_nodes(&node_id).len() == 1;
 
   enum EnumerationDirection {
     Left,
@@ -50,12 +50,12 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
       return;
     }
 
-    current_sequence.push(*next_node);
-    node_id = *next_node;
+    current_sequence.push(next_node);
+    node_id = next_node;
   };
 
   for node in graph.all_nodes() {
-    if processed_nodes.contains(node.id()) || !check_node(node.id()) {
+    if processed_nodes.contains(node.id()) || !check_node(node.id) {
       continue;
     }
 
@@ -108,8 +108,8 @@ impl NeededNodesIds {
     let first_node = *sequence.first().unwrap();
     let last_node = *sequence.last().unwrap();
 
-    let start_node = **graph.incoming_edges(&first_node).first().unwrap();
-    let end_node = **graph.outgoing_nodes(&last_node).first().unwrap();
+    let start_node = *graph.incoming_edges(&first_node).first().unwrap();
+    let end_node = *graph.outgoing_nodes(&last_node).first().unwrap();
 
     Self {
       first_node,

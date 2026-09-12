@@ -1,9 +1,10 @@
 use crate::{features::discovery::ecfg::models::RootSequenceKind, utils::user_data::user_data::UserDataImpl};
-use std::{cell::RefCell, collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Arc<str>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);
 type NodeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl, bool);
+type DataTransfer<'a> = &'a dyn Fn(&UserDataImpl, &mut UserDataImpl);
 type EdgeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl);
 
 pub struct DiscoveryContext<'a, T> {
@@ -11,6 +12,7 @@ pub struct DiscoveryContext<'a, T> {
   artificial_start_end_events_factory: ArtificialStartEnd<'a, T>,
   root_sequence_kind: RootSequenceKind,
   event_to_node_info_transfer: NodeDataTransfer<'a, T>,
+  user_data_transfer: DataTransfer<'a>,
   event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
   pub(crate) event_ids_to_node_ids: HashMap<u64, u64>,
 }
@@ -21,6 +23,7 @@ impl<'a, T> DiscoveryContext<'a, T> {
     artificial_start_end_events_factory: ArtificialStartEnd<'a, T>,
     root_sequence_kind: RootSequenceKind,
     event_to_node_info_transfer: NodeDataTransfer<'a, T>,
+    user_data_transfer: DataTransfer<'a>,
     event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
   ) -> Self {
     Self {
@@ -28,6 +31,7 @@ impl<'a, T> DiscoveryContext<'a, T> {
       artificial_start_end_events_factory,
       root_sequence_kind,
       event_to_node_info_transfer,
+      user_data_transfer,
       event_to_edge_data_transfer,
       event_ids_to_node_ids: Default::default(),
     }
@@ -51,5 +55,9 @@ impl<'a, T> DiscoveryContext<'a, T> {
 
   pub fn event_to_edge_data_transfer(&self) -> EdgeDataTransfer<'a, T> {
     self.event_to_edge_data_transfer
+  }
+
+  pub fn user_data_transfer(&self) -> DataTransfer<'a> {
+    self.user_data_transfer
   }
 }

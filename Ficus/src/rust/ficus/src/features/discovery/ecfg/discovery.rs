@@ -19,6 +19,7 @@ use crate::{
     user_data::user_data::UserData,
   },
 };
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, VecDeque},
@@ -82,6 +83,11 @@ pub fn discover_ecfg<T: PartialEq + Clone + Debug>(
   result.graph_mut().set_kind(Some(graph_kind));
 
   add_start_end_nodes_ids_to_user_data(&mut result);
+
+  if matches!(context.root_sequence_kind(), RootSequenceKind::LCS) {
+    merge_same_outgoing_nodes(context, result.graph_mut());
+  }
+
   adjust_connections(context, log, &mut result.graph);
 
   if let Some(start_node_id) = result.start_node_id {
@@ -127,6 +133,90 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
     root_sequence_nodes_ids.first().cloned(),
     root_sequence_nodes_ids.last().cloned(),
   ))
+}
+
+fn merge_same_outgoing_nodes<T: PartialEq + Clone + Debug>(context: &mut DiscoveryContext<T>, graph: &mut DefaultGraph) {
+  'l: loop {
+    let mut nodes = graph.all_nodes().iter().map(|n| n.id).collect::<Vec<_>>();
+    nodes.sort();
+
+    for n in nodes {
+      if graph.node(&n).is_none() {
+        continue;
+      }
+
+      let groups = graph
+        .outgoing_nodes(&n)
+        .into_iter()
+        .chunk_by(|n| graph.node(n).unwrap().data.clone())
+        .into_iter()
+        .map(|(k, g)| (k, g.collect::<Vec<_>>()))
+        .filter(|(_, g)| g.len() > 1)
+        .collect::<Vec<_>>();
+
+      let any_change = !groups.is_empty();
+      for (_, group) in groups.into_iter() {
+        let new_node = create_new_node_from_nodes(context, graph, &group);
+        graph.connect_nodes(&n, &new_node, NodesConnectionData::default());
+
+        for g_n in &group {
+          for g_out_node in graph.outgoing_nodes(g_n) {
+            graph.reconnect_nodes(g_n, &g_out_node, &new_node, &g_out_node);
+          }
+
+          for g_in_node in graph.incoming_edges(g_n) {
+            if g_in_node != n {
+              graph.reconnect_nodes(&g_in_node, g_n, &g_in_node, &new_node);
+            }
+          }
+
+          graph.disconnect_nodes(&n, g_n);
+        }
+
+        for g_n in &group {
+          graph.remove_node(g_n);
+        }
+      }
+
+      if any_change {
+        continue 'l;
+      }
+    }
+
+    break;
+  }
+}
+
+fn create_new_node_from_nodes<T: PartialEq + Clone + Debug>(
+  context: &mut DiscoveryContext<T>,
+  graph: &mut DefaultGraph,
+  node_ids_to_merge: &[u64],
+) -> u64 {
+  assert!(node_ids_to_merge.len() > 1);
+
+  let event_ids = node_ids_to_merge
+    .into_iter()
+    .map(|n| graph.node(n).unwrap().user_data().concrete(EVENT_UNIQUE_ID_KEY.key()).unwrap())
+    .flat_map(|ids| ids.into_iter().copied())
+    .collect::<Vec<_>>();
+
+  let mut new_node = GraphNode::new(graph.node(&node_ids_to_merge[0]).unwrap().data().cloned());
+
+  for &e_id in &event_ids {
+    assert!(context.event_ids_to_node_ids.insert(e_id, new_node.id).is_some());
+  }
+
+  new_node.user_data_mut().put_concrete(EVENT_UNIQUE_ID_KEY.key(), event_ids);
+
+  for id in node_ids_to_merge {
+    context.user_data_transfer()(graph.node(id).unwrap().user_data(), new_node.user_data_mut());
+  }
+
+  let id = new_node.id;
+
+  graph.add_created_node(new_node);
+
+  id
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(

@@ -528,6 +528,7 @@ fn discover_ecfg_internal(mut traces: Vec<Vec<String>>, gold_root_sequence: Opti
   let name_extractor = |s: &String| Arc::from(s.to_owned());
 
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
+  let data_transfer = |_: &UserDataImpl, _: &mut UserDataImpl| {};
   let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
 
   let factory = || (START.to_string(), END.to_string());
@@ -537,6 +538,7 @@ fn discover_ecfg_internal(mut traces: Vec<Vec<String>>, gold_root_sequence: Opti
     &factory,
     root_sequence_kind,
     &to_node_data_transfer,
+    &data_transfer,
     &to_edge_data_transfer,
   );
 
