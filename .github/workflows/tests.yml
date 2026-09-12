@@ -41,6 +41,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -48,6 +49,12 @@ jobs:
             10.0.x
             8.0.x
             6.0.x
+
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
+        with:
+          version: 4.2.0
+
       - name: Build and unit test Procfiler
         run: |
           dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/
@@ -85,11 +92,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install CMake
-        uses: ssrobins/install-cmake@v1
-        with:
-          version: 4.2.0
 
       - name: Setup docker
         uses: docker/setup-qemu-action@v3
