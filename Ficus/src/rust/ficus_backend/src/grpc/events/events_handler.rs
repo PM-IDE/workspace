@@ -1,7 +1,6 @@
-use std::any::Any;
-
-use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
+use crate::{ficus_proto::GrpcPipelinePartExecutionResult, grpc::events::kafka_events_handler::ProcessCaseMetadata};
 use ficus::utils::context_key::ContextKey;
+use std::{any::Any, cell::Cell};
 use uuid::Uuid;
 
 pub trait PipelineEventsHandler: Send + Sync {
@@ -25,6 +24,12 @@ impl PipelineEventsHandler for EmptyPipelineEventsHandler {
   }
 }
 
+pub trait PipelineEventsHandlerWithRecords {
+  fn drain_recorded_events(&self) -> Option<Vec<GrpcPipelinePartExecutionResult>> {
+    None
+  }
+}
+
 pub struct GetContextValuesEvent<'a> {
   pub process_case_metadata: ProcessCaseMetadata,
   pub pipeline_part_name: String,
@@ -33,13 +38,18 @@ pub struct GetContextValuesEvent<'a> {
   pub key_values: Vec<(&'a dyn ContextKey, &'a dyn Any)>,
 }
 
+pub enum PipelinePartExecResult<'a> {
+  Default(GetContextValuesEvent<'a>),
+  Recorded(Cell<GrpcPipelinePartExecutionResult>),
+}
+
 pub enum PipelineFinalResult {
   Success(Uuid),
   Error(String),
 }
 
 pub enum PipelineEvent<'a> {
-  GetContextValuesEvent(GetContextValuesEvent<'a>),
+  GetContextValuesEvent(PipelinePartExecResult<'a>),
   LogMessage(String),
   FinalResult(PipelineFinalResult),
   ProcessCaseMetadata(ProcessCaseMetadata),

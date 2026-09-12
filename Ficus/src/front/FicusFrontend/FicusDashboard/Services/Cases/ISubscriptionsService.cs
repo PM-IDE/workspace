@@ -12,7 +12,7 @@ public interface ISubscriptionsService
   ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; }
 
   void StartUpdatesRequestingRoutine(CancellationToken token);
-  Task<IReadOnlyDictionary<Guid, PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data);
+  Task<IReadOnlyList<PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data);
 }
 
 public class SubscriptionsService(
@@ -54,7 +54,7 @@ public class SubscriptionsService(
     }, token);
   }
 
-  public async Task<IReadOnlyDictionary<Guid, PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data)
+  public async Task<IReadOnlyList<PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data)
   {
     var result = await client.GetPipelineCaseContextValueAsync(new GrpcGetPipelineCaseContextValuesRequest
     {
@@ -68,24 +68,29 @@ public class SubscriptionsService(
       ProcessName = data.ProcessData.ProcessName
     });
 
-    return result.ContextValues.Select((value, order) =>
-    {
-      var id = value.PipelinePartInfo.Id.ToGuid();
-
-      var results = value.ExecutionResults.Select(r => new PipelinePartExecutionResult
+    return result.ContextValues
+      .Select((x, order) => (Id: x.PipelinePartInfo.Id.ToGuid(), Order: order, Parts: x))
+      .GroupBy(x => x.Id)
+      .Select(group =>
       {
-        ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-      }).ToList();
+        var results = group.SelectMany(x => x.Parts.ExecutionResults).Select(r => new PipelinePartExecutionResult
+        {
+          ContextValues = [.. r.ContextValues.Select(c => new ContextValueWrapper(c))]
+        }).ToList();
 
-      var partResults = new PipelinePartExecutionResults
-      {
-        PipelinePartName = value.PipelinePartInfo.Name,
-        Order = (uint)order,
-        Results = new ViewableList<PipelinePartExecutionResult>(results)
-      };
+        var (_, order, parts) = group.First();
+        var info = parts.PipelinePartInfo;
 
-      return (id, partResults);
-    }).ToDictionary();
+        var partResults = new PipelinePartExecutionResults
+        {
+          PipelinePartName = info.Name,
+          Order = (uint)order,
+          Results = new ViewableList<PipelinePartExecutionResult>(results)
+        };
+
+        return partResults;
+      })
+      .ToList();
   }
 
   private void ProcessState(GrpcSubscriptionAndPipelinesStateResponse reponse)

@@ -4,13 +4,13 @@ use quick_xml::{
 };
 use std::{
   cell::RefCell,
-  error::Error,
   fmt::{Debug, Display},
   io,
   string::FromUtf8Error,
   sync::Arc,
 };
 
+#[derive(Debug)]
 pub enum XmlWriteError {
   FromUt8Error(FromUtf8Error),
   IOError(io::Error),
@@ -26,18 +26,6 @@ impl Display for XmlWriteError {
     }
   }
 }
-
-impl Debug for XmlWriteError {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Self::FromUt8Error(arg0) => f.debug_tuple("FromUt8Error").field(arg0).finish(),
-      Self::IOError(arg0) => f.debug_tuple("IOError").field(arg0).finish(),
-      Self::WriterError(arg0) => f.debug_tuple("WriterError").field(arg0).finish(),
-    }
-  }
-}
-
-impl Error for XmlWriteError {}
 
 pub fn write_empty<T>(writer: &mut Writer<T>, tag_name: &str, attrs: &Vec<(&str, &str)>) -> Result<(), XmlWriteError>
 where

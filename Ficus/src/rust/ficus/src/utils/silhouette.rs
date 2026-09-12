@@ -13,7 +13,7 @@ impl Display for SilhouetteScoreError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
       SilhouetteScoreError::NotEnoughSamples => f.write_str("Not enough samples for silhouette score"),
-      &SilhouetteScoreError::InappropriateLabelsCount => f.write_str("Labels count should be 2 <= n_labels <= n_samples - 1"),
+      SilhouetteScoreError::InappropriateLabelsCount => f.write_str("Labels count should be 2 <= n_labels <= n_samples - 1"),
     }
   }
 }

@@ -1,4 +1,4 @@
-use super::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::{
   ficus_proto::{GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcProcessCaseMetadata, GrpcStringKeyValue},
   grpc::logs_handler::ConsoleLogMessageHandler,
@@ -9,8 +9,9 @@ use rdkafka::{
   ClientConfig,
   error::KafkaError,
   producer::{BaseProducer, BaseRecord},
+  util::Timeout,
 };
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -42,7 +43,10 @@ impl PipelineEventsProducer {
       .payload(&encoded_message);
 
     let result = match self.producer.send(record) {
-      Ok(_) => Ok(()),
+      Ok(_) => {
+        self.producer.poll(Timeout::After(Duration::from_millis(50)));
+        Ok(())
+      }
       Err(err) => Err(err.0),
     };
 

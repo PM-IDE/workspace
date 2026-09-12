@@ -1,7 +1,4 @@
-use std::{
-  error::Error,
-  fmt::{Debug, Display, Formatter},
-};
+use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Debug)]
 pub enum PipelinePartExecutionError {
@@ -23,11 +20,12 @@ impl Display for PipelinePartExecutionError {
 }
 
 impl PipelinePartExecutionError {
-  pub fn new_raw(error: String) -> Self {
-    PipelinePartExecutionError::Raw(RawPartExecutionError::new(error))
+  pub fn new_raw(error: impl Into<String>) -> Self {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(error.into()))
   }
 }
 
+#[derive(Debug)]
 pub struct MissingContextError {
   context_key_name: String,
 }
@@ -44,14 +42,7 @@ impl Display for MissingContextError {
   }
 }
 
-impl Debug for MissingContextError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.debug_struct("MissingContextError")
-      .field("context_key_name", &self.context_key_name)
-      .finish()
-  }
-}
-
+#[derive(Debug)]
 pub struct RawPartExecutionError {
   message: String,
 }
@@ -61,16 +52,6 @@ impl Display for RawPartExecutionError {
     f.write_str(&self.message)
   }
 }
-
-impl Debug for RawPartExecutionError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.debug_struct("PipelinePartExecutionError")
-      .field("message", &self.message)
-      .finish()
-  }
-}
-
-impl Error for RawPartExecutionError {}
 
 impl RawPartExecutionError {
   pub fn new(message: String) -> Self {

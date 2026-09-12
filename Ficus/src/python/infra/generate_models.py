@@ -15,7 +15,11 @@ def generate_models():
 
     os.mkdir(models_dir)
 
-    python = '/usr/local/bin/python3'
+    if os.name == 'nt':
+        python = 'python'
+    else:
+        python = '/usr/local/bin/python3'
+
     os.popen(f'{python} -m pip install grpcio-tools').read()
     packages = []
 

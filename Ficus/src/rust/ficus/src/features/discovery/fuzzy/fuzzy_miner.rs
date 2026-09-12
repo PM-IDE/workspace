@@ -186,7 +186,7 @@ fn find_initial_clusters<TLog: EventLog>(
     let mut max_corr = f64::NEG_INFINITY;
     let mut max_corr_node_id = None;
 
-    for connected_node_id in connected_nodes {
+    for connected_node_id in &connected_nodes {
       if connected_node_id != node.id() {
         let connected_node_name = graph.node(connected_node_id).unwrap().data().unwrap();
         let correlation = provider.proximity_correlation(this_node_name, connected_node_name);
@@ -224,12 +224,12 @@ fn merge_clusters<TLog: EventLog>(
       let cluster_id = current_clusters.get(i).unwrap();
       let cluster = clusters.get(cluster_id).unwrap().clone();
 
-      let outgoing_nodes: HashSet<&u64> = cluster.borrow().set().iter().flat_map(|id| graph.outgoing_nodes(id)).collect();
+      let outgoing_nodes: HashSet<u64> = cluster.borrow().set().iter().flat_map(|id| graph.outgoing_nodes(id)).collect();
       if try_merge_clusters(provider, graph, nodes_to_clusters, &outgoing_nodes, clusters, cluster.clone()) {
         continue 'merging_clusters;
       }
 
-      let incoming_nodes: HashSet<&u64> = cluster.borrow().set().iter().flat_map(|id| graph.incoming_edges(id)).collect();
+      let incoming_nodes: HashSet<u64> = cluster.borrow().set().iter().flat_map(|id| graph.incoming_edges(id)).collect();
       if try_merge_clusters(provider, graph, nodes_to_clusters, &incoming_nodes, clusters, cluster.clone()) {
         continue 'merging_clusters;
       }
@@ -277,7 +277,7 @@ fn try_merge_clusters<TLog: EventLog>(
   provider: &mut FuzzyMetricsProvider<TLog>,
   graph: &FuzzyGraph,
   nodes_to_clusters: &mut HashMap<u64, u64>,
-  nodes: &HashSet<&u64>,
+  nodes: &HashSet<u64>,
   clusters: &mut HashMap<u64, Rc<RefCell<OneSet<u64>>>>,
   cluster: Rc<RefCell<OneSet<u64>>>,
 ) -> bool {

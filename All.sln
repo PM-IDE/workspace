@@ -125,6 +125,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{92C02EAF-93FB-4A2C-A235-8541D893163C}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\macos\generate_grpc_models.sh = scripts\macos\generate_grpc_models.sh
+		scripts\windows\generate_grpc_models.ps1 = scripts\windows\generate_grpc_models.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{2918C7E3-3FC8-48A5-ADDF-8358E888B40C}"

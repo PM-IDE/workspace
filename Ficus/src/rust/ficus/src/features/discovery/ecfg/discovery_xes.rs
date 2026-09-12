@@ -57,18 +57,23 @@ pub fn discover_ecfg_from_event_log(
 
   let event_to_node_data_transfer =
     |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
-      transfer_data_from_event_to_node_user_data(event, user_data_impl, belongs_to_root_sequence);
+      transfer_data_from_event_to_node_user_data(event.borrow().user_data(), user_data_impl, belongs_to_root_sequence);
     };
 
   let event_to_edge_data_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl| {
     transfer_data_from_event_to_edge_user_data(event, user_data_impl);
   };
 
-  let context = DiscoveryContext::new(
+  let data_transfer = |data: &UserDataImpl, user_data_impl: &mut UserDataImpl| {
+    transfer_data_from_event_to_node_user_data(data, user_data_impl, false);
+  };
+
+  let mut context = DiscoveryContext::new(
     &name_extractor,
     &artificial_start_end_events_factory,
     root_sequence_kind,
     &event_to_node_data_transfer,
+    &data_transfer,
     &event_to_edge_data_transfer,
   );
 
@@ -82,8 +87,8 @@ pub fn discover_ecfg_from_event_log(
     .map(|t| t.into_iter().map(EventWithUniqueId::new).collect())
     .collect();
 
-  let mut result = discover_ecfg(&log, &context, merge_sequences_of_events, Some(performance_map))?;
-  discover_graphs_for_patterns(result.graph_mut(), &context);
+  let mut result = discover_ecfg(&log, &mut context, merge_sequences_of_events, Some(performance_map))?;
+  discover_graphs_for_patterns(result.graph_mut(), &mut context);
 
   Ok(result.graph_move())
 }
@@ -96,22 +101,24 @@ fn transfer_data_from_event_to_edge_user_data(event: &Rc<RefCell<XesEventImpl>>,
     underlying_events.last().unwrap()
   };
 
-  transfer_vector_like_user_data(event, &EDGE_SOFTWARE_DATA_KEY, user_data);
-  transfer_vector_like_user_data(event, &EDGE_TRACE_EXECUTION_INFO_KEY, user_data);
-  transfer_vector_like_user_data(event, &EDGE_START_END_ACTIVITIES_TIMES_KEY, user_data);
+  let event = event.borrow();
+  let data = event.user_data();
+  transfer_vector_like_user_data(data, &EDGE_SOFTWARE_DATA_KEY, user_data);
+  transfer_vector_like_user_data(data, &EDGE_TRACE_EXECUTION_INFO_KEY, user_data);
+  transfer_vector_like_user_data(data, &EDGE_START_END_ACTIVITIES_TIMES_KEY, user_data);
 }
 
 fn transfer_data_from_event_to_node_user_data(
-  event: &Rc<RefCell<XesEventImpl>>,
+  data: &UserDataImpl,
   user_data_impl: &mut UserDataImpl,
   belongs_to_root_sequence: bool,
 ) {
-  transfer_vector_like_user_data(event, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
-  transfer_vector_like_user_data(event, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
-  transfer_vector_like_user_data(event, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
-  transfer_vector_like_user_data(event, &NODE_MULTITHREADED_FRAGMENT_LOG_KEY, user_data_impl);
+  transfer_vector_like_user_data(data, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
+  transfer_vector_like_user_data(data, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
+  transfer_vector_like_user_data(data, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
+  transfer_vector_like_user_data(data, &NODE_MULTITHREADED_FRAGMENT_LOG_KEY, user_data_impl);
 
-  if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
+  if let Some(corresponding_trace_data) = data.concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
     let new_trace_data = corresponding_trace_data
       .iter()
       .map(|d| {
@@ -152,7 +159,7 @@ fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
   }
 }
 
-fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryContext<Rc<RefCell<XesEventImpl>>>) {
+fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &mut DiscoveryContext<Rc<RefCell<XesEventImpl>>>) {
   for node in graph.all_nodes_mut() {
     let user_data = node.user_data_mut();
 
@@ -193,11 +200,11 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
 }
 
 fn transfer_vector_like_user_data<T: Clone>(
-  event: &Rc<RefCell<XesEventImpl>>,
+  data: &UserDataImpl,
   key: &DefaultContextKey<Vec<T>>,
   user_data_impl: &mut UserDataImpl,
 ) {
-  if let Some(data) = event.borrow().user_data().concrete(key.key()) {
+  if let Some(data) = data.concrete(key.key()) {
     if let Some(existing_data) = user_data_impl.concrete_mut(key.key()) {
       existing_data.extend(data.clone());
     } else {

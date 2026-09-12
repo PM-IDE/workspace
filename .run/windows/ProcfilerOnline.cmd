@@ -5,6 +5,7 @@ set OnlineProcfilerSettings__KafkaSettings__TopicName=my-topic
 set OnlineProcfilerSettings__KafkaSettings__BootstrapServers=localhost:9092
 
 dotnet clean %PM_IDE_ROOT%/All.sln
+dotnet build %PM_IDE_ROOT%/ProcfilerBuildTasks/ -c Release
 dotnet build %PM_IDE_ROOT%/All.sln -c Release
 dotnet build %PM_IDE_ROOT%/Procfiler/src/dotnet/ProcfilerLoggerProvider/ -c Release
 dotnet build %PM_IDE_ROOT%/Procfiler/test_data/source/WFWebApp -c Release

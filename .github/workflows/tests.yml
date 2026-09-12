@@ -9,7 +9,7 @@ on:
 
 jobs:
   dotnet-bxes-unit-tests:
-    runs-on: windows-2022
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
         run: dotnet test ./bxes/src/csharp/Bxes.Tests
 
   rust-bxes-unit-tests:
-    runs-on: windows-2022
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v4
@@ -37,10 +37,11 @@ jobs:
           RUSTFLAGS: ""
 
   dotnet-procfiler-unit-tests:
-    runs-on: windows-2022
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -48,6 +49,12 @@ jobs:
             10.0.x
             8.0.x
             6.0.x
+
+      - name: Install CMake
+        uses: ssrobins/install-cmake@v1
+        with:
+          version: 4.2.0
+
       - name: Build and unit test Procfiler
         run: |
           dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/

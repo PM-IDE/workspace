@@ -15,7 +15,7 @@ use crate::{
 };
 use derive_new::new;
 use fancy_regex::Regex;
-use std::collections::HashMap;
+use std::{cell::LazyCell, collections::HashMap};
 
 pub struct PipelineParts {
   names_to_parts: HashMap<String, PipelinePartFactory>,
@@ -54,14 +54,10 @@ macro_rules! pipeline_part {
   };
 }
 
-impl Default for PipelineParts {
-  fn default() -> Self {
-    Self::new()
-  }
-}
+pub const PIPELINE_PARTS: LazyCell<PipelineParts> = LazyCell::new(|| PipelineParts::new());
 
 impl PipelineParts {
-  pub fn new() -> Self {
+  fn new() -> Self {
     let parts = vec![
       Self::read_log_from_xes(),
       Self::write_log_to_xes(),
@@ -153,6 +149,8 @@ impl PipelineParts {
       Self::clear_graphs(),
       Self::terminate_if_empty_log(),
       Self::create_ocel_annotation_for_dag(),
+      Self::convert_ecfg_to_petri_net(),
+      Self::serialize_petri_net_bytes(),
     ];
 
     let mut names_to_parts = HashMap::new();
