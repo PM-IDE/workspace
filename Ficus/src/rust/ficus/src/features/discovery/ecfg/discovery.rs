@@ -136,14 +136,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
 
 fn merge_same_outgoing_nodes<T: PartialEq + Clone + Debug>(context: &mut DiscoveryContext<T>, graph: &mut DefaultGraph) {
   'l: loop {
-    let mut nodes = graph.all_nodes().iter().map(|n| n.id).collect::<Vec<_>>();
-    nodes.sort();
-
-    for n in nodes {
-      if graph.node(&n).is_none() {
-        continue;
-      }
-
+    for n in graph.all_nodes().into_iter().map(|n| n.id).collect::<Vec<_>>() {
       let mut groups = HashMap::<_, Vec<_>>::new();
       for n in graph.outgoing_nodes(&n) {
         let key = graph.node(&n).unwrap().data.clone();
@@ -157,17 +150,17 @@ fn merge_same_outgoing_nodes<T: PartialEq + Clone + Debug>(context: &mut Discove
         }
 
         any_change = true;
-        let new_node = create_new_node_from_nodes(context, graph, &group);
-        graph.connect_nodes(&n, &new_node, NodesConnectionData::default());
+        let new_node_id = create_new_node_from_nodes(context, graph, &group);
+        graph.connect_nodes(&n, &new_node_id, NodesConnectionData::default());
 
         for g_n in &group {
           for g_out_node in graph.outgoing_nodes(g_n) {
-            graph.reconnect_nodes(g_n, &g_out_node, &new_node, &g_out_node);
+            graph.reconnect_nodes(g_n, &g_out_node, &new_node_id, &g_out_node);
           }
 
           for g_in_node in graph.incoming_edges(g_n) {
             if g_in_node != n {
-              graph.reconnect_nodes(&g_in_node, g_n, &g_in_node, &new_node);
+              graph.reconnect_nodes(&g_in_node, g_n, &g_in_node, &new_node_id);
             }
           }
 
