@@ -1135,13 +1135,6 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
-    </transition>
     <arc id="[{0}--{OUT_0}]" source="0" target="OUT_0">
     </arc>
     <arc id="[{0}--{OUT_0}]" source="0" target="OUT_0">
@@ -1546,8 +1539,6 @@
     </arc>
     <arc id="[{OUT_Loop[7]}--{tau}]" source="OUT_Loop[7]" target="tau">
     </arc>
-    <arc id="[{OUT_Loop[7]}--{tau}]" source="OUT_Loop[7]" target="tau">
-    </arc>
     <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
     </arc>
     <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
@@ -1645,8 +1636,6 @@
     <arc id="[{tau}--{IN_7}]" source="tau" target="IN_7">
     </arc>
     <arc id="[{tau}--{IN_7}]" source="tau" target="IN_7">
-    </arc>
-    <arc id="[{tau}--{IN_8}]" source="tau" target="IN_8">
     </arc>
     <arc id="[{tau}--{IN_8}]" source="tau" target="IN_8">
     </arc>
