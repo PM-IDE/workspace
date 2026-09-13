@@ -108,11 +108,7 @@ fn transfer_data_from_event_to_edge_user_data(event: &Rc<RefCell<XesEventImpl>>,
   transfer_vector_like_user_data(data, &EDGE_START_END_ACTIVITIES_TIMES_KEY, user_data);
 }
 
-fn transfer_data_from_event_to_node_user_data(
-  data: &UserDataImpl,
-  user_data_impl: &mut UserDataImpl,
-  belongs_to_root_sequence: bool,
-) {
+fn transfer_data_from_event_to_node_user_data(data: &UserDataImpl, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
   transfer_vector_like_user_data(data, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
   transfer_vector_like_user_data(data, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
   transfer_vector_like_user_data(data, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
@@ -199,11 +195,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &mut Discover
   }
 }
 
-fn transfer_vector_like_user_data<T: Clone>(
-  data: &UserDataImpl,
-  key: &DefaultContextKey<Vec<T>>,
-  user_data_impl: &mut UserDataImpl,
-) {
+fn transfer_vector_like_user_data<T: Clone>(data: &UserDataImpl, key: &DefaultContextKey<Vec<T>>, user_data_impl: &mut UserDataImpl) {
   if let Some(data) = data.concrete(key.key()) {
     if let Some(existing_data) = user_data_impl.concrete_mut(key.key()) {
       existing_data.extend(data.clone());
