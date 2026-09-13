@@ -89,11 +89,19 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
   }
 }
 
-pub fn shift_indices_to_left<T: PartialEq>(s: &[T], indices: &[usize]) -> Vec<usize> {
+fn shift_indices_to_left<T: PartialEq>(s: &[T], indices: &[usize]) -> Vec<usize> {
+  if indices.is_empty() {
+    return vec![];
+  }
+
   let mut idx = 0;
   let mut result = vec![];
 
   for (i, c) in s.iter().enumerate() {
+    if idx == indices.len() {
+      break;
+    }
+
     if c.eq(&s[indices[indices.len() - 1 - idx]]) {
       result.push(i);
       idx += 1;
