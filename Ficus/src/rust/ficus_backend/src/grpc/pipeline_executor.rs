@@ -18,6 +18,7 @@ use ficus::{
   },
   utils::{
     context_key::DefaultContextKey,
+    performance::performance_cookie::performance_cookie,
     user_data::user_data::{UserData, UserDataImpl},
   },
 };
@@ -98,10 +99,11 @@ impl<'a> ServicePipelineExecutionContext<'a> {
 
     let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
 
-    match pipeline.execute(&mut pipeline_context, &infra) {
-      Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
-      Err(err) => Err(err),
-    }
+    let res = performance_cookie("executing_pipeline", &infra, &mut || {
+      pipeline.execute(&mut pipeline_context, &infra)
+    });
+
+    res.map(|_| (id, pipeline_context.devastate_user_data()))
   }
 
   pub(super) fn execute_grpc_pipeline_and_fill_context_values(
