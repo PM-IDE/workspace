@@ -46,7 +46,7 @@ pub fn discover_petri_net_heuristic(
 fn construct_heuristic_petri_net(provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
   let mut classes_to_ids = HashMap::new();
   for class in provider.log_info().all_event_classes() {
-    let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));
+    let id = petri_net.add_transition(Transition::empty(class.to_owned(), Some(class.to_owned())));
     classes_to_ids.insert(class.to_owned(), id);
   }
 
@@ -92,8 +92,7 @@ fn construct_heuristic_petri_net(provider: &HeuristicMinerRelationsProvider, pet
     petri_net.connect_transition_to_place(classes_to_ids.get(first_class).unwrap(), &post_place_id, None);
 
     for group in &parallel_groups {
-      let name = Arc::<str>::from(format!("silent_start_{first_class}"));
-      let id = petri_net.add_transition(Transition::empty(name.to_owned(), true, Some(name.to_owned())));
+      let id = petri_net.add_transition(Transition::silent());
       petri_net.connect_place_to_transition(&post_place_id, &id, None);
 
       for el in group.set().iter() {

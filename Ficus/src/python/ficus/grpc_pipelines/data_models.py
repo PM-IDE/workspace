@@ -68,3 +68,5 @@ class RootSequenceKind(Enum):
   LCS = 1
   PairwiseLCS = 2
   Trace = 3
+  LCSLeftShifted = 4
+

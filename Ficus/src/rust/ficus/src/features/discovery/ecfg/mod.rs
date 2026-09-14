@@ -6,3 +6,4 @@ pub mod discovery_xes;
 pub mod log_prepare;
 pub mod models;
 pub mod root_sequence;
+pub mod to_petri_net;

@@ -37,17 +37,32 @@ where
   }
 }
 
+impl Transition<Arc<str>, ()> {
+  pub fn silent() -> Self {
+    const NAME: &str = "tau";
+
+    Self {
+      id: next_id(),
+      name: Arc::from(NAME),
+      silent_transition: true,
+      incoming_arcs: vec![],
+      outgoing_arcs: vec![],
+      data: Some(Arc::from(NAME)),
+    }
+  }
+}
+
 impl<TTransitionData, TArcData> Transition<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  pub fn empty(name: Arc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
+  pub fn empty(name: Arc<str>, data: Option<TTransitionData>) -> Self {
     Self {
       id: next_id(),
       name,
-      silent_transition,
-      incoming_arcs: Vec::new(),
-      outgoing_arcs: Vec::new(),
+      silent_transition: false,
+      incoming_arcs: vec![],
+      outgoing_arcs: vec![],
       data,
     }
   }

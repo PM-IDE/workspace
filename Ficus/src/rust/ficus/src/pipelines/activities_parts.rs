@@ -34,7 +34,7 @@ use crate::{
       NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY,
       REGEXES_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
     },
-    pipeline_parts::PipelineParts,
+    pipeline_parts::{PIPELINE_PARTS, PipelineParts},
   },
   utils::{
     log_serialization_format::LogSerializationFormat,
@@ -225,7 +225,7 @@ impl PipelineParts {
     let adjusting_mode = *Self::get_user_data(config, &ADJUSTING_MODE_KEY)?;
     let log = Self::get_user_data(old_context, &EVENT_LOG_KEY)?;
 
-    let mut new_context = PipelineContext::empty_from(old_context);
+    let mut new_context = PipelineContext::empty();
 
     if adjusting_mode == AdjustingMode::FromUnattachedSubTraces {
       if let Ok(activities) = Self::get_user_data(old_context, &TRACE_ACTIVITIES_KEY) {
@@ -243,9 +243,7 @@ impl PipelineParts {
       old_activities.push(new_activity.clone());
     }
 
-    old_context
-      .pipeline_parts()
-      .unwrap()
+    PIPELINE_PARTS
       .create_add_unattached_events_part(config.clone())
       .execute(old_context, infra)?;
 

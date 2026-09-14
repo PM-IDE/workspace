@@ -139,14 +139,14 @@ where
   }
 
   pub fn add_node(&mut self, node_data: Option<TNodeData>) -> u64 {
-    self.add_node_internal(GraphNode::new(node_data))
+    self.add_created_node(GraphNode::new(node_data))
   }
 
   pub fn delete_node(&mut self, id: &u64) -> bool {
     self.nodes.remove(id).is_some()
   }
 
-  fn add_node_internal(&mut self, new_node: GraphNode<TNodeData>) -> u64 {
+  pub fn add_created_node(&mut self, new_node: GraphNode<TNodeData>) -> u64 {
     let id = *new_node.id();
     self.nodes.insert(*new_node.id(), new_node);
 
@@ -154,7 +154,7 @@ where
   }
 
   pub fn add_node_with_user_data(&mut self, node_data: Option<TNodeData>, user_data: UserDataImpl) -> u64 {
-    self.add_node_internal(GraphNode::new_with_user_data(node_data, user_data))
+    self.add_created_node(GraphNode::new_with_user_data(node_data, user_data))
   }
 
   pub fn connect_nodes(&mut self, first_node_id: &u64, second_node_id: &u64, connection_data: NodesConnectionData<TEdgeData>) {
@@ -196,33 +196,45 @@ where
     }
   }
 
-  pub fn all_connected_nodes(&self, node_id: &u64) -> Vec<&u64> {
+  pub fn remove_node(&mut self, id: &u64) {
+    assert!(self.nodes.remove(id).is_some());
+  }
+
+  pub fn reconnect_nodes(&mut self, a: &u64, b: &u64, c: &u64, d: &u64) {
+    let mut edge = self.connections.get_mut(a).unwrap().remove(b).unwrap();
+
+    edge.from_node = *c;
+    edge.to_node = *d;
+    self.connections.entry(*c).or_default().insert(*d, edge);
+  }
+
+  pub fn all_connected_nodes(&self, node_id: &u64) -> Vec<u64> {
     let mut connected_nodes = match self.connections.get(node_id) {
       None => vec![],
-      Some(connections) => connections.keys().collect(),
+      Some(connections) => connections.keys().copied().collect(),
     };
 
     for (node_id, connections) in &self.connections {
       if connections.contains_key(node_id) {
-        connected_nodes.push(node_id);
+        connected_nodes.push(*node_id);
       }
     }
 
     connected_nodes
   }
 
-  pub fn outgoing_nodes(&self, node_id: &u64) -> Vec<&u64> {
+  pub fn outgoing_nodes(&self, node_id: &u64) -> Vec<u64> {
     match self.connections.get(node_id) {
       None => vec![],
-      Some(outgoing_edges) => outgoing_edges.keys().collect(),
+      Some(outgoing_edges) => outgoing_edges.keys().copied().collect(),
     }
   }
 
-  pub fn incoming_edges(&self, node_id: &u64) -> Vec<&u64> {
+  pub fn incoming_edges(&self, node_id: &u64) -> Vec<u64> {
     let mut result = vec![];
     for (candidate, connections) in &self.connections {
       if connections.contains_key(node_id) {
-        result.push(candidate);
+        result.push(*candidate);
       }
     }
 
@@ -266,6 +278,6 @@ where
   TEdgeData: ToString + Display,
 {
   pub fn add_node_from_another_node(&mut self, other_node: &GraphNode<TNodeData>) -> u64 {
-    self.add_node_internal(GraphNode::new_with_user_data(other_node.data.clone(), other_node.user_data.clone()))
+    self.add_created_node(GraphNode::new_with_user_data(other_node.data.clone(), other_node.user_data.clone()))
   }
 }

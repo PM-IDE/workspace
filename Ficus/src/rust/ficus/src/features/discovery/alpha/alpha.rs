@@ -68,11 +68,7 @@ fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log
       }
     }
 
-    let id = petri_net.add_transition(Transition::empty(
-      transition_name.to_owned(),
-      false,
-      Some(transition_name.to_owned()),
-    ));
+    let id = petri_net.add_transition(Transition::empty(transition_name.to_owned(), Some(transition_name.to_owned())));
 
     let place_id = match petri_net.find_place_id_by_name(alpha_set.to_string().as_str()) {
       Some(found_place_id) => found_place_id,
@@ -196,7 +192,7 @@ fn create_petri_net(info: &dyn EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> Defa
   let mut petri_net = PetriNet::default();
   let mut event_classes_to_transition_ids = HashMap::new();
   for class in info.all_event_classes() {
-    let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));
+    let id = petri_net.add_transition(Transition::empty(class.to_owned(), Some(class.to_owned())));
     event_classes_to_transition_ids.insert(class.as_ref(), id);
   }
 

@@ -13,11 +13,12 @@ use ficus::{
     context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::PipelinePartExecutionError,
     keys::context_keys::{EXECUTION_ID_KEY, find_context_key},
-    pipeline_parts::PipelineParts,
+    pipeline_parts::PIPELINE_PARTS,
     pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
   },
   utils::{
     context_key::DefaultContextKey,
+    performance::performance_cookie::performance_cookie,
     user_data::user_data::{UserData, UserDataImpl},
   },
 };
@@ -27,7 +28,6 @@ use uuid::Uuid;
 pub(super) struct ServicePipelineExecutionContext<'a> {
   grpc_pipeline: &'a GrpcPipeline,
   context_values: &'a Vec<GrpcContextKeyValue>,
-  pipeline_parts: Arc<PipelineParts>,
   handler: Arc<dyn PipelineEventsHandler>,
   log_message_handler: Arc<dyn LogMessageHandler>,
 }
@@ -36,7 +36,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
   pub fn new(
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
-    pipeline_parts: Arc<PipelineParts>,
     handler: Arc<dyn PipelineEventsHandler>,
   ) -> Self {
     let log_message_handler = Self::create_log_message_handler(handler.clone());
@@ -44,7 +43,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     Self {
       grpc_pipeline,
       context_values,
-      pipeline_parts,
       handler,
       log_message_handler,
     }
@@ -70,10 +68,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     self.grpc_pipeline
   }
 
-  pub fn parts(&self) -> &PipelineParts {
-    &self.pipeline_parts
-  }
-
   pub fn context_values(&self) -> &Vec<GrpcContextKeyValue> {
     self.context_values
   }
@@ -86,7 +80,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     Self {
       grpc_pipeline: new_grpc_pipeline,
       context_values: self.context_values,
-      pipeline_parts: self.pipeline_parts.clone(),
       handler: self.handler.clone(),
       log_message_handler: self.log_message_handler.clone(),
     }
@@ -106,10 +99,11 @@ impl<'a> ServicePipelineExecutionContext<'a> {
 
     let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
 
-    match pipeline.execute(&mut pipeline_context, &infra) {
-      Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
-      Err(err) => Err(err),
-    }
+    let res = performance_cookie("executing_pipeline", &infra, &mut || {
+      pipeline.execute(&mut pipeline_context, &infra)
+    });
+
+    res.map(|_| (id, pipeline_context.devastate_user_data()))
   }
 
   pub(super) fn execute_grpc_pipeline_and_fill_context_values(
@@ -211,14 +205,13 @@ impl<'a> ServicePipelineExecutionContext<'a> {
       }
     }
 
-    self
-      .parts()
+    PIPELINE_PARTS
       .find_part(&grpc_default_part.name)
       .map(|default_part| Box::new(default_part(Box::new(part_config))))
   }
 
-  pub(super) fn create_initial_context(&'a self) -> PipelineContext<'a> {
-    let mut pipeline_context = PipelineContext::new_with_logging(self.parts());
+  pub(super) fn create_initial_context(&'a self) -> PipelineContext {
+    let mut pipeline_context = PipelineContext::empty();
 
     for value in self.context_values() {
       let key = find_context_key(&value.key.as_ref().unwrap().name).unwrap();

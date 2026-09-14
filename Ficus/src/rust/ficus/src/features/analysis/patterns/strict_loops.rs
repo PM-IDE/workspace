@@ -71,14 +71,11 @@ fn create_strict_loop_activity_instance(
   let repeat_count = *array.get_repeat_count();
   let array = array.get_sub_array_info();
 
-  let mut name = trace.events()[array.start_index..array.start_index + array.length]
+  let name = trace.events()[array.start_index..array.start_index + array.length]
     .iter()
     .map(|e| get_display_name(&e.borrow()).to_string())
-    .collect::<HashSet<String>>()
     .into_iter()
     .collect::<Vec<String>>();
-
-  name.sort();
 
   ActivityInTraceInfo::new(
     Rc::new(RefCell::new(ActivityNode::new(

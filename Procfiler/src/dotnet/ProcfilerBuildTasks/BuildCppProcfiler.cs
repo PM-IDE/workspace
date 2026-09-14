@@ -109,7 +109,7 @@ public class BuildCppProcfiler : Task
       RedirectStandardOutput = true,
       Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) switch
       {
-        true => $"-S {CppProcfilerFolderPath} -DCMAKE_BUILD_TYPE=Release -G \"Visual Studio 17 2022\"",
+        true => $"-S {CppProcfilerFolderPath} -DCMAKE_BUILD_TYPE=Release -G \"Visual Studio 18 2026\"",
         false => $"-S {CppProcfilerFolderPath} -DCMAKE_BUILD_TYPE=Release -G Ninja"
       }
     }
