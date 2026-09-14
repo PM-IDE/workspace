@@ -27,7 +27,7 @@ pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, r
         lcs
       }
     }
-    RootSequenceKind::LCS => find_lcs_candidate_for_root_sequence(log).0,
+    RootSequenceKind::LCS | RootSequenceKind::LCSLeftShifted => find_lcs_candidate_for_root_sequence(log).0,
     RootSequenceKind::PairwiseLCS => create_root_sequence_from_lcs(log, find_traces_pairwise_lcs_candidate_for_root_sequence(log).0),
     RootSequenceKind::Trace => log.get(find_trace_candidate_for_root_sequence(log).0).unwrap().to_vec(),
   }
@@ -63,7 +63,7 @@ fn find_traces_pairwise_lcs_candidate_for_root_sequence<T: PartialEq + Clone + D
         continue;
       }
 
-      let lcs = find_longest_common_subsequence(first_trace, second_trace, first_trace.len(), second_trace.len())
+      let lcs = find_longest_common_subsequence(first_trace, second_trace, first_trace.len(), second_trace.len(), false)
         .lcs()
         .iter()
         .map(|c| (*c).clone())
@@ -89,7 +89,7 @@ fn find_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<
   let mut lcs = log.first().unwrap().iter().map(|e| (*e).clone()).collect::<Vec<_>>();
 
   for trace in log.iter().skip(1) {
-    lcs = find_longest_common_subsequence(&lcs, trace, lcs.len(), trace.len())
+    lcs = find_longest_common_subsequence(&lcs, trace, lcs.len(), trace.len(), false)
       .lcs()
       .iter()
       .map(|e| (*e).clone())
@@ -111,7 +111,7 @@ fn create_root_sequence_from_lcs<T: PartialEq + Clone + Debug>(log: &[Vec<T>], i
   let first_trace_len = first_trace.len();
   let second_trace_len = second_trace.len();
 
-  find_longest_common_subsequence(first_trace, second_trace, first_trace_len, second_trace_len)
+  find_longest_common_subsequence(first_trace, second_trace, first_trace_len, second_trace_len, false)
     .lcs()
     .iter()
     .map(|c| (*c).clone())

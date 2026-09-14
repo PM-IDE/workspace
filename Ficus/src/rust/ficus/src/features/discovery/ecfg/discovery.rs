@@ -15,7 +15,7 @@ use crate::{
       graph_node::GraphNode,
       graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY},
     },
-    lcs::find_longest_common_subsequence,
+    lcs::{LCSSearchResult, find_longest_common_subsequence},
     user_data::user_data::UserData,
   },
 };
@@ -76,14 +76,14 @@ pub fn discover_ecfg<T: PartialEq + Clone + Debug>(
 
   let graph_kind = match context.root_sequence_kind() {
     RootSequenceKind::FindBest | RootSequenceKind::PairwiseLCS | RootSequenceKind::Trace => GraphKind::Dag,
-    RootSequenceKind::LCS => GraphKind::DagLCS,
+    RootSequenceKind::LCS | RootSequenceKind::LCSLeftShifted => GraphKind::DagLCS,
   };
 
   result.graph_mut().set_kind(Some(graph_kind));
 
   add_start_end_nodes_ids_to_user_data(&mut result);
 
-  if matches!(context.root_sequence_kind(), RootSequenceKind::LCS) {
+  if matches!(context.root_sequence_kind(), RootSequenceKind::LCSLeftShifted) {
     merge_same_outgoing_nodes(context, result.graph_mut());
   }
 
@@ -310,7 +310,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
   }
 
   for trace in log {
-    let lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
+    let lcs = do_find_lcs(context, trace, root_sequence);
     for (trace_index, root_sequence_index) in lcs.first_indices().iter().zip(lcs.second_indices().iter()) {
       let event = trace.get(*trace_index).unwrap();
       transfer_user_data(
@@ -326,6 +326,20 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
   root_sequence_node_ids
 }
 
+fn do_find_lcs<'a, 'b, T: PartialEq + Clone + Debug>(
+  context: &'b DiscoveryContext<T>,
+  first: &'a [EventWithUniqueId<T>],
+  second: &'a [EventWithUniqueId<T>],
+) -> LCSSearchResult<'a, EventWithUniqueId<T>> {
+  find_longest_common_subsequence(
+    first,
+    second,
+    first.len(),
+    second.len(),
+    matches!(context.root_sequence_kind(), RootSequenceKind::LCSLeftShifted),
+  )
+}
+
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<EventWithUniqueId<T>>>,
   root_sequence: &Vec<EventWithUniqueId<T>>,
@@ -335,7 +349,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
 ) -> Result<(), DiscoverECFGError> {
   let mut adjustments = HashMap::new();
   for trace in traces {
-    let trace_lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
+    let trace_lcs = do_find_lcs(context, trace, root_sequence);
     let second_indices = trace_lcs.second_indices();
 
     let mut lcs_index = 0;

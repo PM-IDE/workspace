@@ -18,6 +18,7 @@ pub enum DiscoverECFGError {
 pub enum RootSequenceKind {
   FindBest,
   LCS,
+  LCSLeftShifted,
   PairwiseLCS,
   Trace,
 }
@@ -29,6 +30,7 @@ impl FromStr for RootSequenceKind {
     match s {
       "FindBest" => Ok(Self::FindBest),
       "LCS" => Ok(Self::LCS),
+      "LCSLeftShifted" => Ok(Self::LCSLeftShifted),
       "PairwiseLCS" => Ok(Self::PairwiseLCS),
       "Trace" => Ok(Self::Trace),
       _ => Err(()),
