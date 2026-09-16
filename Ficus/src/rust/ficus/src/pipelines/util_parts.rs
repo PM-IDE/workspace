@@ -1,6 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
-
 use chrono::{DateTime, Duration, Utc};
+use std::{cell::RefCell, fs::File, rc::Rc};
 
 use super::pipelines::PipelinePartFactory;
 use crate::{
@@ -21,14 +20,14 @@ use crate::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::PipelinePartExecutionError,
     keys::context_keys::{
-      EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPHS_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
-      PIPELINE_KEY,
+      BYTES, BYTES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPHS_KEY, HASHES_EVENT_LOG_KEY,
+      NAMES_EVENT_LOG_KEY, PATH, PATH_KEY, PIPELINE_KEY,
     },
     pipeline_parts::PipelineParts,
     pipelines::PipelinePart,
   },
   utils::{
-    graph::graphs_merging::merge_graphs,
+    graph::{graphs_merging::merge_graphs, prom_serialization},
     user_data::user_data::{UserData, UserDataImpl},
   },
 };
@@ -143,6 +142,25 @@ impl PipelineParts {
     if log.traces().iter().map(|t| t.borrow().events().len()).sum::<usize>() == 0 {
       return Err(PipelinePartExecutionError::new_raw("Empty log".to_string()));
     }
+
+    Ok(())
+  });
+
+  pipeline_part!(serialize_graph_prom, |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+    let output_path = Self::get_user_data(config, &PATH_KEY)?;
+
+    std::fs::write(output_path.as_ref(), prom_serialization::serialize(graph))
+      .map_err(|err| PipelinePartExecutionError::new_raw(format!("Failed to write serialized graph {err}")))?;
+
+    Ok(())
+  });
+
+  pipeline_part!(serialize_graph_prom_bytes, |context: &mut PipelineContext, _, _: &UserDataImpl| {
+    let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+    let content = prom_serialization::serialize(graph);
+
+    context.put_concrete(BYTES_KEY.key(), content.as_bytes().to_vec());
 
     Ok(())
   });

@@ -151,6 +151,8 @@ impl PipelineParts {
       Self::create_ocel_annotation_for_dag(),
       Self::convert_ecfg_to_petri_net(),
       Self::serialize_petri_net_bytes(),
+      Self::serialize_graph_prom(),
+      Self::serialize_graph_prom_bytes(),
     ];
 
     let mut names_to_parts = HashMap::new();

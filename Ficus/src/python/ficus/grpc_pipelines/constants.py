@@ -154,6 +154,8 @@ const_discover_loops_strict = 'DiscoverLoopsStrict'
 const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
 const_convert_ecfg_to_petri_net = 'ConvertECFGToPetriNet'
 const_serialize_petri_net_bytes = 'SerializePetriNetBytes'
+const_serialize_graph_prom = 'SerializeGraphProm'
+const_serialize_graph_prom_bytes = 'SerializeGraphPromBytes'
 
 const_prepare_software_log = 'PrepareSoftwareEventLog'
 const_shorten_allocation_type = 'ShortenAllocationType'
