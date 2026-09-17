@@ -153,6 +153,8 @@ impl PipelineParts {
       Self::serialize_petri_net_bytes(),
       Self::serialize_graph_prom(),
       Self::serialize_graph_prom_bytes(),
+      Self::get_graph_info(),
+      Self::get_petri_net_info(),
     ];
 
     let mut names_to_parts = HashMap::new();

@@ -281,3 +281,17 @@ where
     self.add_created_node(GraphNode::new_with_user_data(other_node.data.clone(), other_node.user_data.clone()))
   }
 }
+
+pub struct GraphInfo {
+  pub nodes_count: usize,
+  pub edges_count: usize,
+}
+
+impl GraphInfo {
+  pub fn create<TNodeData: ToString, TEdgeData: ToString>(graph: &Graph<TNodeData, TEdgeData>) -> GraphInfo {
+    GraphInfo {
+      nodes_count: graph.nodes.len(),
+      edges_count: graph.connections.iter().map(|(_, c)| c.len()).sum(),
+    }
+  }
+}

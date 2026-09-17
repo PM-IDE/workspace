@@ -62,6 +62,8 @@ impl PipelineParts {
   pub const SERIALIZE_PETRI_NET_BYTES: &'static str = "SerializePetriNetBytes";
   pub const SERIALIZE_GRAPH_PROM: &'static str = "SerializeGraphProm";
   pub const SERIALIZE_GRAPH_PROM_BYTES: &'static str = "SerializeGraphPromBytes";
+  pub const GET_GRAPH_INFO: &str = "GetGraphInfo";
+  pub const GET_PETRI_NET_INFO: &str = "GetPetriNetInfo";
 
   pub const PREPARE_SOFTWARE_EVENT_LOG: &'static str = "PrepareSoftwareEventLog";
   pub const SHORTEN_ALLOCATION_TYPE: &'static str = "ShortenAllocationType";

@@ -176,3 +176,23 @@ where
     self.map_transitions(&self.get_place_transitions(place_id).outgoing_transitions)
   }
 }
+
+pub struct PetriNetInfo {
+  pub places_count: usize,
+  pub transition_count: usize,
+  pub arcs_count: usize,
+}
+
+impl PetriNetInfo {
+  pub fn create<TTransitionData: ToString, TArcData>(net: &PetriNet<TTransitionData, TArcData>) -> PetriNetInfo {
+    PetriNetInfo {
+      places_count: net.places.len(),
+      transition_count: net.transitions.len(),
+      arcs_count: net
+        .places
+        .iter()
+        .map(|(p_id, _)| net.get_incoming_transitions(p_id).len() + net.get_outgoing_transitions(p_id).len())
+        .sum(),
+    }
+  }
+}

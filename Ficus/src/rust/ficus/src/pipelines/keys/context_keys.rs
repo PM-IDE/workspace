@@ -15,7 +15,10 @@ use crate::{
     discovery::{
       ecfg::models::RootSequenceKind,
       ocel::graph_annotation::OcelAnnotation,
-      petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
+      petri_net::{
+        annotations::TimeAnnotationKind,
+        petri_net::{DefaultPetriNet, PetriNetInfo},
+      },
       timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
     },
   },
@@ -30,7 +33,7 @@ use crate::{
     context_key::ContextKey,
     dataset::dataset::{FicusDataset, LabeledDataset},
     distance::distance::FicusDistance,
-    graph::graph::DefaultGraph,
+    graph::graph::{DefaultGraph, GraphInfo},
     log_serialization_format::LogSerializationFormat,
   },
 };
@@ -138,6 +141,8 @@ pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &str = "software_data_extraction_conf
 pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &str = "discover_activity_instances_strict";
 pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &str = "put_noise_events_in_one_cluster";
 pub const OCEL_ANNOTATION: &str = "ocel_annotation";
+pub const GRAPH_INFO: &str = "graph_info";
+pub const PETRI_NET_INFO: &str = "petri_net_info";
 
 #[macro_export]
 macro_rules! context_key {
@@ -248,6 +253,8 @@ context_key! { SOFTWARE_DATA_EXTRACTION_CONFIG, SoftwareDataExtractionConfig }
 context_key! { DISCOVER_ACTIVITY_INSTANCES_STRICT, bool }
 context_key! { PUT_NOISE_EVENTS_IN_ONE_CLUSTER, bool }
 context_key! { OCEL_ANNOTATION, OcelAnnotation }
+context_key! { GRAPH_INFO, GraphInfo }
+context_key! { PETRI_NET_INFO, PetriNetInfo }
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
   match name {
@@ -342,6 +349,8 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     DISCOVER_ACTIVITY_INSTANCES_STRICT => Some(DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY.deref() as &dyn ContextKey),
     PUT_NOISE_EVENTS_IN_ONE_CLUSTER => Some(PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY.deref() as &dyn ContextKey),
     OCEL_ANNOTATION => Some(OCEL_ANNOTATION_KEY.deref() as &dyn ContextKey),
+    GRAPH_INFO => Some(GRAPH_INFO_KEY.deref() as &dyn ContextKey),
+    PETRI_NET_INFO => Some(PETRI_NET_INFO_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }
