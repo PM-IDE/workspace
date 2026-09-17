@@ -1,14 +1,15 @@
+use super::pipeline_executor::ServicePipelineExecutionContext;
 use crate::ficus_proto::{
   GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog,
   GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo,
   GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates,
   GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData,
-  GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid,
+  GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphInfo, GrpcGraphKind, GrpcGraphNode, GrpcGuid,
   GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint,
   GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNamesEventLog,
   GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge,
   GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject,
-  GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
+  GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetInfo, GrpcPetriNetMarking, GrpcPetriNetPlace,
   GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData,
   GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
   GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceSubArray, GrpcTraceSubArrays, GrpcTraceTimelineDiagram,
@@ -58,7 +59,7 @@ use ficus::{
         annotations::TimeAnnotationKind,
         arc::PetriNetArc,
         marking::{Marking, SingleMarking},
-        petri_net::DefaultPetriNet,
+        petri_net::{DefaultPetriNet, PetriNetInfo},
         place::Place,
         transition::Transition,
       },
@@ -74,11 +75,11 @@ use ficus::{
   pipelines::{
     activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
     keys::context_keys::{
-      BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-      LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
-      NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY,
-      PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY,
-      TRACES_ACTIVITIES_DATASET_KEY,
+      BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY,
+      HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY,
+      LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY,
+      PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_INFO_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY,
+      SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY,
     },
     multithreading::FeatureCountKindDto,
     patterns_parts::PatternsKindDto,
@@ -90,7 +91,7 @@ use ficus::{
     dataset::dataset::{FicusDataset, LabeledDataset},
     distance::distance::FicusDistance,
     graph::{
-      graph::{DefaultGraph, Graph, GraphKind},
+      graph::{DefaultGraph, Graph, GraphInfo, GraphKind},
       graph_edge::GraphEdge,
       graph_node::GraphNode,
     },
@@ -107,8 +108,6 @@ use prost::{DecodeError, Message};
 use prost_types::Timestamp;
 use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr, sync::Arc};
 use uuid::Uuid;
-
-use super::pipeline_executor::ServicePipelineExecutionContext;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -224,7 +223,7 @@ pub(super) fn put_into_user_data(
 
       user_data.put_concrete(EVENT_LOG_KEY.key(), xes_log);
     }
-    ContextValue::OcelAnnotation(_) => todo!(),
+    ContextValue::OcelAnnotation(_) | ContextValue::GraphInfo(..) | ContextValue::PetriNetInfo(..) => todo!(),
   }
 }
 
@@ -309,8 +308,41 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> O
     try_convert_to_grpc_simple_log(value)
   } else if OCEL_ANNOTATION_KEY.eq_other(key) {
     try_convert_to_grpc_ocel_annotation(value)
+  } else if GRAPH_INFO_KEY.eq_other(key) {
+    try_convert_to_graph_info(value)
+  } else if PETRI_NET_INFO_KEY.eq_other(key) {
+    try_convert_to_petri_net_info(value)
   } else {
     None
+  }
+}
+
+fn try_convert_to_graph_info(value: &dyn Any) -> Option<GrpcContextValue> {
+  if !value.is::<GraphInfo>() {
+    None
+  } else {
+    let value = value.downcast_ref::<GraphInfo>().unwrap();
+    Some(GrpcContextValue {
+      context_value: Some(ContextValue::GraphInfo(GrpcGraphInfo {
+        edges_count: value.edges_count as i64,
+        nodes_count: value.nodes_count as i64,
+      })),
+    })
+  }
+}
+
+fn try_convert_to_petri_net_info(value: &dyn Any) -> Option<GrpcContextValue> {
+  if !value.is::<PetriNetInfo>() {
+    None
+  } else {
+    let value = value.downcast_ref::<PetriNetInfo>().unwrap();
+    Some(GrpcContextValue {
+      context_value: Some(ContextValue::PetriNetInfo(GrpcPetriNetInfo {
+        arcs_count: value.arcs_count as i64,
+        places_count: value.places_count as i64,
+        transitions_count: value.transition_count as i64,
+      })),
+    })
   }
 }
 

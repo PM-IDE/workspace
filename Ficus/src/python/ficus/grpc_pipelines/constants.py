@@ -77,6 +77,8 @@ const_software_data_extraction_config = 'software_data_extraction_config'
 const_discover_activities_instances_strict = 'discover_activity_instances_strict'
 const_put_noise_events_in_one_cluster = 'put_noise_events_in_one_cluster'
 const_ocel_annotation = "ocel_annotation"
+const_graph_info = 'graph_info'
+const_petri_net_info = 'petri_net_info'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'
@@ -156,6 +158,8 @@ const_convert_ecfg_to_petri_net = 'ConvertECFGToPetriNet'
 const_serialize_petri_net_bytes = 'SerializePetriNetBytes'
 const_serialize_graph_prom = 'SerializeGraphProm'
 const_serialize_graph_prom_bytes = 'SerializeGraphPromBytes'
+const_get_graph_info = 'GetGraphInfo'
+const_get_petri_net_info = 'GetPetriNetInfo'
 
 const_prepare_software_log = 'PrepareSoftwareEventLog'
 const_shorten_allocation_type = 'ShortenAllocationType'

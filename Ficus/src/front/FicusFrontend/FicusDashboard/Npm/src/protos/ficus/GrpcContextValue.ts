@@ -21,6 +21,8 @@ import type { GrpcIntArray_DONTUSE as _ficus_GrpcIntArray_DONTUSE, GrpcIntArray 
 import type { GrpcUintArray_DONTUSE as _ficus_GrpcUintArray_DONTUSE, GrpcUintArray as _ficus_GrpcUintArray } from '../ficus/GrpcUintArray';
 import type { GrpcSimpleEventLog_DONTUSE as _ficus_GrpcSimpleEventLog_DONTUSE, GrpcSimpleEventLog as _ficus_GrpcSimpleEventLog } from '../ficus/GrpcSimpleEventLog';
 import type { GrpcOcelModelAnnotation_DONTUSE as _ficus_GrpcOcelModelAnnotation_DONTUSE, GrpcOcelModelAnnotation as _ficus_GrpcOcelModelAnnotation } from '../ficus/GrpcOcelModelAnnotation';
+import type { GrpcGraphInfo_DONTUSE as _ficus_GrpcGraphInfo_DONTUSE, GrpcGraphInfo as _ficus_GrpcGraphInfo } from '../ficus/GrpcGraphInfo';
+import type { GrpcPetriNetInfo_DONTUSE as _ficus_GrpcPetriNetInfo_DONTUSE, GrpcPetriNetInfo as _ficus_GrpcPetriNetInfo } from '../ficus/GrpcPetriNetInfo';
 
 export interface GrpcContextValue_DONTUSE {
   'string'?: (string);
@@ -50,7 +52,9 @@ export interface GrpcContextValue_DONTUSE {
   'json'?: (string);
   'eventLog'?: (_ficus_GrpcSimpleEventLog_DONTUSE | null);
   'ocelAnnotation'?: (_ficus_GrpcOcelModelAnnotation_DONTUSE | null);
-  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation";
+  'graphInfo'?: (_ficus_GrpcGraphInfo_DONTUSE | null);
+  'petriNetInfo'?: (_ficus_GrpcPetriNetInfo_DONTUSE | null);
+  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation"|"graphInfo"|"petriNetInfo";
 }
 
 export interface GrpcContextValue {
@@ -81,5 +85,7 @@ export interface GrpcContextValue {
   'json'?: (string);
   'eventLog'?: (_ficus_GrpcSimpleEventLog | null);
   'ocelAnnotation'?: (_ficus_GrpcOcelModelAnnotation | null);
-  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation";
+  'graphInfo'?: (_ficus_GrpcGraphInfo | null);
+  'petriNetInfo'?: (_ficus_GrpcPetriNetInfo | null);
+  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation"|"graphInfo"|"petriNetInfo";
 }
