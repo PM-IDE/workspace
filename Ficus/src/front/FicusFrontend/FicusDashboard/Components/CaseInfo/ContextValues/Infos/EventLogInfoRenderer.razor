@@ -1,0 +1,13 @@
+﻿@using Ficus
+
+@inherits ComponentBase
+
+<div class="entity-info-container">
+  <InfoItem Title="Events" Info="@EventLogInfo.EventsCount.ToString()" Background="#123312"/>
+  <InfoItem Title="Traces" Info="@EventLogInfo.TracesCount.ToString()" Background="#321123"/>
+  <InfoItem Title="Event classes" Info="@EventLogInfo.EventClassesCount.ToString()" Background="#312312"/>
+</div>
+
+@code {
+  [Parameter] public required GrpcEventLogInfo EventLogInfo { get; init; }
+}

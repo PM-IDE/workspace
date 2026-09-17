@@ -1,0 +1,11 @@
+﻿@using Ficus
+
+<div class="entity-info-container">
+  <InfoItem Title="Places" Info="@Info.PlacesCount.ToString()" Background="#123312"/>
+  <InfoItem Title="Transitions" Info="@Info.TransitionsCount.ToString()" Background="#321123"/>
+  <InfoItem Title="Arcs" Info="@Info.ArcsCount.ToString()" Background="#321123"/>
+</div>
+
+@code {
+  [Parameter] public required GrpcPetriNetInfo Info { get; init; }
+}
