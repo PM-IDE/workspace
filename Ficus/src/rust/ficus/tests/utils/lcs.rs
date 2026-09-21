@@ -28,7 +28,7 @@ pub fn test_lcs_5() {
 fn execute_lcs_test(first: &str, second: &str, lcs: &str) {
   let first_bytes = first.as_bytes().to_vec();
   let second_bytes = second.as_bytes().to_vec();
-  let found_lcs = find_longest_common_subsequence(&first_bytes, &second_bytes, first.len(), second.len());
+  let found_lcs = find_longest_common_subsequence(&first_bytes, &second_bytes, first.len(), second.len(), false);
 
   assert_eq!(found_lcs.lcs().clone(), lcs.as_bytes().iter().collect::<Vec<&u8>>());
 

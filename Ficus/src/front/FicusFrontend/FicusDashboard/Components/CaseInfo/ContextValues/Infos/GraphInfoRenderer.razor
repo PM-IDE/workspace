@@ -1,0 +1,10 @@
+﻿@using Ficus
+
+<div class="entity-info-container">
+  <InfoItem Title="Nodes" Info="@Info.NodesCount.ToString()" Background="#123312"/>
+  <InfoItem Title="Edges" Info="@Info.EdgesCount.ToString()" Background="#321123"/>
+</div>
+
+@code {
+  [Parameter] public required GrpcGraphInfo Info { get; init; }
+}

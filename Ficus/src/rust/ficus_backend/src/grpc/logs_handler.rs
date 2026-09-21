@@ -22,7 +22,7 @@ impl GrpcLogMessageHandlerImpl {
 }
 
 #[derive(Clone)]
-pub struct ConsoleLogMessageHandler {}
+pub struct ConsoleLogMessageHandler;
 
 impl LogMessageHandler for ConsoleLogMessageHandler {
   fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError> {

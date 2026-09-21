@@ -140,3 +140,14 @@ message GrpcLabeledDataset {
   repeated int32 labels = 2;
   repeated GrpcColor labelsColors = 3;
 }
+
+message GrpcGraphInfo {
+  int64 nodesCount = 1;
+  int64 edgesCount = 2;
+}
+
+message GrpcPetriNetInfo {
+  int64 placesCount = 1;
+  int64 transitionsCount = 2;
+  int64 arcsCount = 3;
+}

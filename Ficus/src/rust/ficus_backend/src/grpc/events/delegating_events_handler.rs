@@ -1,11 +1,12 @@
 use crate::grpc::events::events_handler::{PipelineEvent, PipelineEventsHandler};
+use std::sync::Arc;
 
 pub struct DelegatingEventsHandler {
-  handlers: Vec<Box<dyn PipelineEventsHandler>>,
+  handlers: Vec<Arc<dyn PipelineEventsHandler>>,
 }
 
 impl DelegatingEventsHandler {
-  pub fn new(handlers: Vec<Box<dyn PipelineEventsHandler>>) -> Self {
+  pub fn new(handlers: Vec<Arc<dyn PipelineEventsHandler>>) -> Self {
     Self { handlers }
   }
 }

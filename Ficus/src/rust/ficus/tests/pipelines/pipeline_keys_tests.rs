@@ -19,7 +19,10 @@ use ficus::{
     discovery::{
       ecfg::models::RootSequenceKind,
       ocel::graph_annotation::OcelAnnotationCreationError,
-      petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
+      petri_net::{
+        annotations::TimeAnnotationKind,
+        petri_net::{DefaultPetriNet, PetriNetInfo},
+      },
       timeline::discovery::LogTimelineDiagram,
     },
   },
@@ -34,7 +37,7 @@ use ficus::{
     colors::{ColorsEventLog, ColorsHolder},
     dataset::dataset::{FicusDataset, LabeledDataset},
     distance::distance::FicusDistance,
-    graph::graph::DefaultGraph,
+    graph::graph::{DefaultGraph, GraphInfo},
     log_serialization_format::LogSerializationFormat,
   },
   vecs,
@@ -136,6 +139,8 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
     assert_existence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
     assert_existence::<OcelAnnotationCreationError>(&OCEL_ANNOTATION, &mut used);
+    assert_existence::<GraphInfo>(&GRAPH_INFO, &mut used);
+    assert_existence::<PetriNetInfo>(&PETRI_NET_INFO, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -241,7 +246,9 @@ fn get_all_keys_names() -> Vec<String> {
         "software_data_extraction_config",
         "discover_activity_instances_strict",
         "merge_sequences_of_events",
-        "ocel_annotation"
+        "ocel_annotation",
+        "graph_info",
+        "petri_net_info"
     ]
 }
 
@@ -348,6 +355,8 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
     assert_keys_equivalence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
     assert_keys_equivalence::<bool>(&OCEL_ANNOTATION, &mut used);
+    assert_keys_equivalence::<GraphInfo>(&GRAPH_INFO, &mut used);
+    assert_keys_equivalence::<PetriNetInfo>(&PETRI_NET_INFO, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

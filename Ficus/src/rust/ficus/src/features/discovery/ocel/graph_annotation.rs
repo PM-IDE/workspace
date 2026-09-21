@@ -143,7 +143,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
 
     let incoming_nodes = graph.incoming_edges(&node);
     for incoming_node in incoming_nodes.iter() {
-      if !process_nodes_states.contains_key(*incoming_node) {
+      if !process_nodes_states.contains_key(incoming_node) {
         q.push_back(node);
         continue 'main_loop;
       }
@@ -155,7 +155,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     let fallback_type = Arc::from(UNKNOWN_TYPE.clone());
 
     for incoming_node in incoming_nodes.iter() {
-      let prev_state: &ProcessNodesStates = process_nodes_states.get(*incoming_node).as_ref().unwrap();
+      let prev_state: &ProcessNodesStates = process_nodes_states.get(incoming_node).as_ref().unwrap();
       let edge = graph.edge(incoming_node, &node);
       let edge = edge.as_ref().unwrap();
 
@@ -191,7 +191,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   related_objects.push(id.clone());
                 }
 
-                let relations = OcelObjectRelations::new(obj_id.to_owned(), **incoming_node, related_objects);
+                let relations = OcelObjectRelations::new(obj_id.to_owned(), *incoming_node, related_objects);
                 new_node_objects_relations.push(relations);
 
                 let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
@@ -207,7 +207,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   let id = produced_obj.id();
                   new_node_state.add_allocated_object(obj_type.clone(), id.clone())?;
 
-                  let relations = OcelObjectRelations::new(id.clone(), **incoming_node, vec![obj_id.clone()]);
+                  let relations = OcelObjectRelations::new(id.clone(), *incoming_node, vec![obj_id.clone()]);
                   new_node_objects_relations.push(relations);
                 }
 
@@ -222,7 +222,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state, new_node_objects_relations));
 
     for outgoing_node in graph.outgoing_nodes(&node) {
-      q.push_back(*outgoing_node);
+      q.push_back(outgoing_node);
     }
   }
 

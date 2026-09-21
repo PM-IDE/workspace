@@ -21,7 +21,7 @@
 @if (myIsLoading)
 {
   <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-    <Loader />
+    <Loader/>
   </div>
 
   return;
@@ -48,7 +48,7 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-  @foreach (var (index, (_, results)) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Index())
+  @foreach (var (index, results) in myPipelinePartsExecutionResults.OrderBy(x => x.Order).Index())
   {
     <PipelinePartResultsRenderer Results="results"
                                  Lifetime="myCurrentLifetime"
@@ -60,11 +60,11 @@
 @code
 {
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
-  private IReadOnlyDictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = 
-    new Dictionary<Guid, PipelinePartExecutionResults>();
+
+  private IReadOnlyList<PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
 
   private bool myIsLoading;
-  
+
   private Lifetime myCurrentLifetime;
   private ProcessCaseData? myProcessCaseData;
 

@@ -72,7 +72,9 @@ pub fn discover_events_groups(
     last_stamp = Some(*event.stamp());
   }
 
-  add_to_groups(last_trace_group.clone(), last_seen_point);
+  if last_trace_group.is_some() {
+    add_to_groups(last_trace_group, last_seen_point);
+  }
 
   groups
 }

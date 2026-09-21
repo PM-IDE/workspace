@@ -1,6 +1,6 @@
 use std::cmp::max;
 
-pub fn find_longest_common_subsequence_length<T: PartialEq>(first: &Vec<T>, second: &Vec<T>, first_len: usize, second_len: usize) -> usize {
+pub fn find_longest_common_subsequence_length<T: PartialEq>(first: &[T], second: &[T], first_len: usize, second_len: usize) -> usize {
   build_longest_common_subsequence_matrix(first, second, first_len, second_len)[first_len][second_len] as usize
 }
 
@@ -56,6 +56,7 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
   second: &'a [T],
   first_len: usize,
   second_len: usize,
+  left_shifted: bool,
 ) -> LCSSearchResult<'a, T> {
   let dp = build_longest_common_subsequence_matrix(first, second, first_len, second_len);
 
@@ -79,9 +80,39 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
     }
   }
 
+  if left_shifted {
+    indices_in_first_sequence = shift_indices_to_left(first, &indices_in_first_sequence);
+    indices_in_second_sequence = shift_indices_to_left(second, &indices_in_second_sequence);
+  } else {
+    indices_in_first_sequence = indices_in_first_sequence.into_iter().rev().collect();
+    indices_in_second_sequence = indices_in_second_sequence.into_iter().rev().collect();
+  }
+
   LCSSearchResult {
     lcs: lcs.into_iter().rev().collect(),
-    indices_in_first_sequence: indices_in_first_sequence.into_iter().rev().collect(),
-    indices_in_second_sequence: indices_in_second_sequence.into_iter().rev().collect(),
+    indices_in_first_sequence,
+    indices_in_second_sequence,
   }
+}
+
+fn shift_indices_to_left<T: PartialEq>(s: &[T], indices: &[usize]) -> Vec<usize> {
+  if indices.is_empty() {
+    return vec![];
+  }
+
+  let mut idx = 0;
+  let mut result = vec![];
+
+  for (i, c) in s.iter().enumerate() {
+    if idx == indices.len() {
+      break;
+    }
+
+    if c.eq(&s[indices[indices.len() - 1 - idx]]) {
+      result.push(i);
+      idx += 1;
+    }
+  }
+
+  result
 }

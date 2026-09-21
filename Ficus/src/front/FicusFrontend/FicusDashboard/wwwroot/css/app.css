@@ -308,3 +308,9 @@ svg-pie-chart svg {
 .flamegraph-ocel-annotation {
   font-size: 14px;
 }
+
+.entity-info-container {
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+}

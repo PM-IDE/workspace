@@ -215,3 +215,21 @@ class GrpcLabeledDataset(_message.Message):
     labels: _containers.RepeatedScalarFieldContainer[int]
     labelsColors: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcColor]
     def __init__(self, dataset: _Optional[_Union[GrpcDataset, _Mapping]] = ..., labels: _Optional[_Iterable[int]] = ..., labelsColors: _Optional[_Iterable[_Union[_util_pb2.GrpcColor, _Mapping]]] = ...) -> None: ...
+
+class GrpcGraphInfo(_message.Message):
+    __slots__ = ["nodesCount", "edgesCount"]
+    NODESCOUNT_FIELD_NUMBER: _ClassVar[int]
+    EDGESCOUNT_FIELD_NUMBER: _ClassVar[int]
+    nodesCount: int
+    edgesCount: int
+    def __init__(self, nodesCount: _Optional[int] = ..., edgesCount: _Optional[int] = ...) -> None: ...
+
+class GrpcPetriNetInfo(_message.Message):
+    __slots__ = ["placesCount", "transitionsCount", "arcsCount"]
+    PLACESCOUNT_FIELD_NUMBER: _ClassVar[int]
+    TRANSITIONSCOUNT_FIELD_NUMBER: _ClassVar[int]
+    ARCSCOUNT_FIELD_NUMBER: _ClassVar[int]
+    placesCount: int
+    transitionsCount: int
+    arcsCount: int
+    def __init__(self, placesCount: _Optional[int] = ..., transitionsCount: _Optional[int] = ..., arcsCount: _Optional[int] = ...) -> None: ...

@@ -53,6 +53,7 @@ export interface ProtoGrpcType {
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition
+    GrpcGraphInfo: MessageTypeDefinition
     GrpcGraphKind: EnumTypeDefinition
     GrpcGraphNode: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
@@ -88,6 +89,7 @@ export interface ProtoGrpcType {
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition
     GrpcPetriNetArc: MessageTypeDefinition
+    GrpcPetriNetInfo: MessageTypeDefinition
     GrpcPetriNetMarking: MessageTypeDefinition
     GrpcPetriNetPlace: MessageTypeDefinition
     GrpcPetriNetSinglePlaceMarking: MessageTypeDefinition

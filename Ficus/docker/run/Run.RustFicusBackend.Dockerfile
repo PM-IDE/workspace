@@ -1,4 +1,4 @@
-FROM rust:1.92.0 as build
+FROM rust:1.93.0 as build
 
 RUN apt update -y && apt upgrade -y
 RUN apt-get update -y

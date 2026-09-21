@@ -10,10 +10,13 @@ use crate::{
         alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc,
         providers::{alpha_plus_provider::AlphaPlusRelationsProviderImpl, alpha_provider::DefaultAlphaRelationsProvider},
       },
-      ecfg::discovery_xes::discover_ecfg_from_event_log,
+      ecfg::{discovery_xes::discover_ecfg_from_event_log, to_petri_net::convert_ecfg_to_petri_net},
       fuzzy::fuzzy_miner::discover_graph_fuzzy,
       heuristic::heuristic_miner::discover_petri_net_heuristic,
-      petri_net::{marking::ensure_initial_marking, pnml_serialization::serialize_to_pnml_file},
+      petri_net::{
+        marking::ensure_initial_marking,
+        pnml_serialization::{serialize_to_pnml, serialize_to_pnml_file},
+      },
       relations::triangle_relation::OfflineTriangleRelation,
     },
   },
@@ -22,11 +25,11 @@ use crate::{
     context::PipelineContext,
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
     keys::context_keys::{
-      AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
-      EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, MERGE_SEQUENCES_OF_EVENTS_KEY,
-      NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY,
-      PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY,
-      UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
+      AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, BYTES_KEY, DEPENDENCY_THRESHOLD_KEY,
+      EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY,
+      MERGE_SEQUENCES_OF_EVENTS_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY,
+      POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY,
+      ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
     },
     pipeline_parts::PipelineParts,
     pipelines::PipelinePartFactory,
@@ -66,6 +69,22 @@ impl PipelineParts {
       Err(error) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(error.to_string()))),
     }
   });
+
+  pipeline_part!(
+    serialize_petri_net_bytes,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+      let petri_net = Self::get_user_data(context, &PETRI_NET_KEY)?;
+      let use_names_as_ids = *Self::get_user_data(config, &PNML_USE_NAMES_AS_IDS_KEY)?;
+
+      match serialize_to_pnml(petri_net, use_names_as_ids) {
+        Ok(content) => {
+          context.put_concrete::<Vec<u8>>(BYTES_KEY.key(), content.as_bytes().to_vec());
+          Ok(())
+        }
+        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+      }
+    }
+  );
 
   pipeline_part!(discover_petri_net_alpha_plus, |context: &mut PipelineContext, _, _| {
     Self::do_discover_petri_net_alpha_plus(context, false)
@@ -210,5 +229,14 @@ impl PipelineParts {
       }
       Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
     }
+  });
+
+  pipeline_part!(convert_ecfg_to_petri_net, |context: &mut PipelineContext, _, _| {
+    let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+    let petri_net = convert_ecfg_to_petri_net(graph);
+    let petri_net = petri_net.map_err(|err| PipelinePartExecutionError::new_raw(err.to_string()))?;
+
+    context.put_concrete(PETRI_NET_KEY.key(), petri_net);
+    Ok(())
   });
 }

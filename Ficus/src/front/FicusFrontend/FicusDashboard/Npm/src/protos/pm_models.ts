@@ -19,6 +19,7 @@ export interface ProtoGrpcType {
     GrpcEvent: MessageTypeDefinition
     GrpcEventAttribute: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
+    GrpcGraphInfo: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
     GrpcHashesEventLog: MessageTypeDefinition
     GrpcHashesLogTrace: MessageTypeDefinition
@@ -29,6 +30,7 @@ export interface ProtoGrpcType {
     GrpcNamesTrace: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition
     GrpcPetriNetArc: MessageTypeDefinition
+    GrpcPetriNetInfo: MessageTypeDefinition
     GrpcPetriNetMarking: MessageTypeDefinition
     GrpcPetriNetPlace: MessageTypeDefinition
     GrpcPetriNetSinglePlaceMarking: MessageTypeDefinition

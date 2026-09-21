@@ -103,11 +103,11 @@ pub struct LevenshteinDistance;
 
 impl Distance<f64> for LevenshteinDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    let a_vec = a.iter().copied().collect::<Vec<f64>>();
-    let b_vec = b.iter().copied().collect::<Vec<f64>>();
+    let a = a.as_slice().unwrap();
+    let b = b.as_slice().unwrap();
 
-    let a_len = Self::get_levenshtein_matrix_dimension_length(&a_vec);
-    let b_len = Self::get_levenshtein_matrix_dimension_length(&b_vec);
+    let a_len = Self::get_levenshtein_matrix_dimension_length(a);
+    let b_len = Self::get_levenshtein_matrix_dimension_length(b);
 
     let mut matrix = vec![vec![0f64]];
     for i in 0..a_len {
@@ -120,7 +120,7 @@ impl Distance<f64> for LevenshteinDistance {
 
     for j in 1..b_len {
       for i in 1..a_len {
-        let number = if a_vec.get(i - 1).unwrap() == b_vec.get(j - 1).unwrap() {
+        let number = if a[i - 1] == b[j - 1] {
           matrix[j - 1][i - 1]
         } else {
           matrix[j - 1][i].min(matrix[j][i - 1]).min(matrix[j - 1][i - 1]) + 1.0
@@ -135,12 +135,12 @@ impl Distance<f64> for LevenshteinDistance {
 }
 
 impl LevenshteinDistance {
-  fn get_levenshtein_matrix_dimension_length(vec: &Vec<f64>) -> usize {
-    find_first_zero_index(vec) + 2
+  fn get_levenshtein_matrix_dimension_length(slice: &[f64]) -> usize {
+    find_first_zero_index(slice) + 2
   }
 }
 
-fn find_first_zero_index(vec: &Vec<f64>) -> usize {
+fn find_first_zero_index(vec: &[f64]) -> usize {
   vec.iter().position(|x| x.is_zero()).unwrap_or(vec.len() - 1)
 }
 
@@ -149,8 +149,8 @@ pub struct LengthDistance;
 
 impl Distance<f64> for LengthDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    let a_len = find_first_zero_index(&a.into_iter().copied().collect());
-    let b_len = find_first_zero_index(&b.into_iter().copied().collect());
+    let a_len = find_first_zero_index(a.as_slice().unwrap());
+    let b_len = find_first_zero_index(b.as_slice().unwrap());
 
     (a_len.max(b_len) - a_len.min(b_len)) as f64
   }
@@ -161,13 +161,13 @@ pub struct LCSDistance;
 
 impl Distance<f64> for LCSDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    let a_vec = a.iter().copied().collect::<Vec<f64>>();
-    let b_vec = b.iter().copied().collect::<Vec<f64>>();
+    let a = a.as_slice().unwrap();
+    let b = b.as_slice().unwrap();
 
-    let a_len = find_first_zero_index(&a_vec) + 1;
-    let b_len = find_first_zero_index(&b_vec) + 1;
+    let a_len = find_first_zero_index(a) + 1;
+    let b_len = find_first_zero_index(b) + 1;
 
-    let lcs = find_longest_common_subsequence_length(&a_vec, &b_vec, a_len, b_len);
+    let lcs = find_longest_common_subsequence_length(a, b, a_len, b_len);
 
     calculate_lcs_distance(lcs, a_len, b_len)
   }

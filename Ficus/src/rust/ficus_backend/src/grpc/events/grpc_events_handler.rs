@@ -1,6 +1,9 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use super::events_handler::{
+  GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineEventsHandlerWithRecords, PipelineFinalResult,
+  PipelinePartExecResult,
+};
 use crate::{
   ficus_proto::{
     GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
@@ -17,27 +20,55 @@ use ficus::pipelines::context::LogMessageHandler;
 pub struct GrpcPipelineEventsHandler {
   sender: Arc<GrpcSender>,
   console_logs_handler: ConsoleLogMessageHandler,
+  record_exec_results: Mutex<Option<Vec<GrpcPipelinePartExecutionResult>>>,
 }
 
 impl GrpcPipelineEventsHandler {
   pub fn new(sender: GrpcSender) -> Self {
+    Self::new_internal(sender, false)
+  }
+
+  fn new_internal(sender: GrpcSender, record_exec_results: bool) -> Self {
     Self {
       sender: Arc::new(sender),
       console_logs_handler: ConsoleLogMessageHandler::new(),
+      record_exec_results: Mutex::new(record_exec_results.then(|| vec![])),
     }
+  }
+
+  pub fn new_record_results(sender: GrpcSender) -> Self {
+    Self::new_internal(sender, true)
+  }
+}
+
+impl PipelineEventsHandlerWithRecords for GrpcPipelineEventsHandler {
+  fn drain_recorded_events(&self) -> Option<Vec<GrpcPipelinePartExecutionResult>> {
+    self.record_exec_results.lock().unwrap().as_mut().map(|v| std::mem::take(v))
   }
 }
 
 impl PipelineEventsHandler for GrpcPipelineEventsHandler {
   fn handle(&self, event: &PipelineEvent) {
     let result = match event {
-      PipelineEvent::GetContextValuesEvent(event) => self.create_get_context_values_event(event),
+      PipelineEvent::GetContextValuesEvent(event) => match event {
+        PipelinePartExecResult::Default(event) => {
+          let event = self.create_get_context_values_event(event);
+          if let Some(records) = self.record_exec_results.lock().unwrap().as_mut() {
+            records.push(event.clone());
+          }
+
+          event
+        }
+        PipelinePartExecResult::Recorded(event) => event.take(),
+      },
       PipelineEvent::LogMessage(message) => self.create_log_message_result(message),
       PipelineEvent::FinalResult(result) => self.create_final_result(match result {
         PipelineFinalResult::Success(uuid) => ExecutionResult::Success(GrpcGuid { guid: uuid.to_string() }),
         PipelineFinalResult::Error(error_message) => ExecutionResult::Error(error_message.to_string()),
       }),
-      PipelineEvent::ProcessCaseMetadata(_) => unreachable!(),
+      PipelineEvent::ProcessCaseMetadata(_) => {
+        return;
+      }
     };
 
     if !self.is_alive() {

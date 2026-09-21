@@ -1,7 +1,7 @@
 use std::{any::Any, sync::Arc};
 use uuid::Uuid;
 
-use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
+use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelinePartExecResult};
 use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
 use ficus::{
   features::cases::CaseName,
@@ -68,13 +68,15 @@ impl GetContextValuePipelinePart {
           Some(execution_id) => execution_id,
         };
 
-        sender.handle(&PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
-          process_case_metadata,
-          pipeline_part_name,
-          pipeline_part_id: uuid,
-          execution_id,
-          key_values,
-        }));
+        sender.handle(&PipelineEvent::GetContextValuesEvent(PipelinePartExecResult::Default(
+          GetContextValuesEvent {
+            process_case_metadata,
+            pipeline_part_name,
+            pipeline_part_id: uuid,
+            execution_id,
+            key_values,
+          },
+        )));
 
         Ok(())
       }),
@@ -105,10 +107,7 @@ impl GetContextValuePipelinePart {
   }
 
   fn value_or_default<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
-    match context.concrete(key.key()) {
-      None => default_factory(),
-      Some(value) => value.clone(),
-    }
+    context.concrete(key.key()).cloned().unwrap_or_else(default_factory)
   }
 
   fn value_or_none<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {

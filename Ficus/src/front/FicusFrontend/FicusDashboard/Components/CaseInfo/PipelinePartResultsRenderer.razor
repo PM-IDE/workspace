@@ -2,7 +2,7 @@
 @using FicusDashboard.Services.Cases
 @using FicusDashboard.Utils
 @using FicusDashboard.Components.CaseInfo.ContextValues.LogTimeline
-@using FicusDashboard.Components.CaseInfo.ContextValues.EventLogInfo
+@using FicusDashboard.Components.CaseInfo.ContextValues.Infos
 @using FicusDashboard.Components.CaseInfo.ContextValues.ColorsLog
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.PetriNet
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
@@ -173,6 +173,8 @@
 
     return contextValue.ContextValueCase switch
     {
+      GrpcContextValue.ContextValueOneofCase.GraphInfo => @<GraphInfoRenderer Info="contextValue.GraphInfo"/>,
+      GrpcContextValue.ContextValueOneofCase.PetriNetInfo => @<PetriNetInfoRenderer Info="contextValue.PetriNetInfo"/>,
       GrpcContextValue.ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id"
                                                                                          TimelineDiagram="contextValue.LogTimelineDiagram"/>,
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer
