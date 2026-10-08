@@ -39,15 +39,16 @@ where
 
 impl Transition<Arc<str>, ()> {
   pub fn silent() -> Self {
+    let id = next_id();
     const NAME: &str = "tau";
 
     Self {
-      id: next_id(),
-      name: Arc::from(NAME),
+      id,
+      name: Arc::from(format!("{NAME}_{id}")),
       silent_transition: true,
       incoming_arcs: vec![],
       outgoing_arcs: vec![],
-      data: Some(Arc::from(NAME)),
+      data: Some(Arc::from(format!("{NAME}_{id}"))),
     }
   }
 }

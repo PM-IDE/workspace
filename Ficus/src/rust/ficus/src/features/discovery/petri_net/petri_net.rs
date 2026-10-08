@@ -41,8 +41,22 @@ where
     self.places.values().collect()
   }
 
+  pub fn all_places_sorted(&self) -> Vec<&Place> {
+    let mut places = self.all_places();
+    places.sort_by_key(|p| p.id());
+
+    places
+  }
+
   pub fn all_transitions(&self) -> Vec<&Transition<TTransitionData, TArcData>> {
     self.transitions.values().collect()
+  }
+
+  pub fn all_transitions_sorted(&self) -> Vec<&Transition<TTransitionData, TArcData>> {
+    let mut transitions = self.all_transitions();
+    transitions.sort_by_key(|t| t.id());
+
+    transitions
   }
 
   pub fn delete_transition(&mut self, id: &u64) -> Option<Transition<TTransitionData, TArcData>> {

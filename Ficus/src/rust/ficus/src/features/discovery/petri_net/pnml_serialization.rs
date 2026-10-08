@@ -85,10 +85,7 @@ fn write_places<TTransitionData, TArcData>(
 where
   TTransitionData: ToString,
 {
-  let mut places = net.all_places();
-  places.sort_by(|left, right| left.name().cmp(right.name()));
-
-  for place in places {
+  for place in net.all_places_sorted() {
     let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       PLACE_TAG_NAME,
@@ -159,7 +156,7 @@ fn write_transitions<TTransitionData, TArcData>(
 where
   TTransitionData: ToString,
 {
-  for transition in created_ordered_transitions_list(net) {
+  for transition in net.all_transitions_sorted() {
     let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       TRANSITION_TAG_NAME,
@@ -192,18 +189,6 @@ where
   }
 
   Ok(())
-}
-
-fn created_ordered_transitions_list<TTransitionData, TArcData>(
-  net: &PetriNet<TTransitionData, TArcData>,
-) -> Vec<&Transition<TTransitionData, TArcData>>
-where
-  TTransitionData: ToString,
-{
-  let mut transitions = net.all_transitions();
-  transitions.sort_by(|left, right| left.name().cmp(right.name()));
-
-  transitions
 }
 
 fn write_arcs<TTransitionData, TArcData>(
@@ -245,7 +230,7 @@ where
     ));
   }
 
-  all_arcs.sort_by(|(_, n1, ..), (_, n2, ..)| n1.cmp(n2));
+  all_arcs.sort_by_key(|(a1, ..)| a1.id());
 
   for (_, name, from, to) in all_arcs {
     StartEndElementCookie::new_with_attrs(
@@ -288,7 +273,7 @@ fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
     })
     .collect();
 
-  arcs.sort_by(|first, second| first.1.cmp(&second.1));
+  arcs.sort_by_key(|(a, ..)| a.id());
   arcs
 }
 

@@ -479,9 +479,9 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
 ) -> Result<(), DiscoverECFGError> {
   let (start_node_id, end_node_id) =
     find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
-  let mut sub_graph_nodes_to_nodes = HashMap::new();
 
-  for node in sub_graph.all_nodes() {
+  let mut sub_graph_nodes_to_nodes = HashMap::new();
+  for node in sub_graph.all_nodes_sorted() {
     if *node.id() != start_node_id && *node.id() != end_node_id {
       let new_node = graph.add_node_with_user_data(node.data.clone(), node.user_data().clone());
 
@@ -495,7 +495,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
     }
   }
 
-  for edge in sub_graph.all_edges() {
+  for edge in sub_graph.all_edges_sorted() {
     let from_node = if *edge.from_node() == start_node_id {
       start_graph_node_id
     } else {
