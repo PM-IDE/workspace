@@ -6,7 +6,7 @@ use super::{petri_net::DefaultPetriNet, place::Place};
 
 #[derive(Debug, Clone)]
 pub struct Marking {
-  active_places: Vec<SingleMarking>,
+  pub(super) active_places: Vec<SingleMarking>,
 }
 
 impl Marking {
@@ -23,8 +23,8 @@ impl Marking {
 
 #[derive(Debug, Clone)]
 pub struct SingleMarking {
-  place_id: u64,
-  tokens_count: usize,
+  pub(super) place_id: u64,
+  pub(super) tokens_count: usize,
 }
 
 impl SingleMarking {

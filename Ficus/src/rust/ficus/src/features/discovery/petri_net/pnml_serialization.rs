@@ -33,14 +33,11 @@ const ID_ATTR_NAME: &str = "id";
 const SOURCE_ATTR_NAME: &str = "source";
 const TARGET_ATTR_NAME: &str = "target";
 
-pub fn serialize_to_pnml_file<TTransitionData, TArcData>(
+pub fn serialize_to_pnml_file<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   save_path: &str,
   use_names_as_ids: bool,
-) -> Result<(), XmlWriteError>
-where
-  TTransitionData: ToString,
-{
+) -> Result<(), XmlWriteError> {
   match serialize_to_pnml(net, use_names_as_ids) {
     Ok(content) => match fs::write(save_path, content) {
       Ok(_) => Ok(()),
@@ -50,13 +47,16 @@ where
   }
 }
 
-pub fn serialize_to_pnml<TTransitionData, TArcData>(
+pub fn serialize_to_pnml<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   use_names_as_ids: bool,
 ) -> Result<String, XmlWriteError>
 where
   TTransitionData: ToString,
 {
+  let net = net.create_remapped_net();
+  let net = &net;
+
   let writer = RefCell::new(Writer::new_with_indent(Cursor::new(Vec::new()), b' ', 2));
 
   let pnml_cookie = StartEndElementCookie::new(&writer, PNML_TAG_NAME)?;
@@ -163,15 +163,13 @@ where
       &vec![(ID_ATTR_NAME, create_transition_id(transition, use_names_as_ids).as_str())],
     )?;
 
-    if let Some(data) = transition.data() {
-      let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
-      let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
+    let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
+    let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
 
-      write_text(writer, &clean_string(data.to_string()))?;
+    write_text(writer, &clean_string(transition.name.to_string()))?;
 
-      drop(text);
-      drop(name);
-    }
+    drop(text);
+    drop(name);
 
     if transition.is_silent() {
       let _ = StartEndElementCookie::new_with_attrs(

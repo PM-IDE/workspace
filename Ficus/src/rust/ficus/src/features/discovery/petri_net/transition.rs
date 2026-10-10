@@ -9,12 +9,12 @@ pub struct Transition<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  id: u64,
-  name: Arc<str>,
-  silent_transition: bool,
-  incoming_arcs: Vec<PetriNetArc<TArcData>>,
-  outgoing_arcs: Vec<PetriNetArc<TArcData>>,
-  data: Option<TTransitionData>,
+  pub(super) id: u64,
+  pub(super) name: Arc<str>,
+  pub(super) silent_transition: bool,
+  pub(super) incoming_arcs: Vec<PetriNetArc<TArcData>>,
+  pub(super) outgoing_arcs: Vec<PetriNetArc<TArcData>>,
+  pub(super) data: Option<TTransitionData>,
 }
 
 impl<TTransitionData, TArcData> PartialEq for Transition<TTransitionData, TArcData>
@@ -37,18 +37,23 @@ where
   }
 }
 
+pub(super) fn silent_transition_name(id: u64) -> Arc<str> {
+  const NAME: &str = "tau";
+  Arc::from(format!("{NAME}_{id}"))
+}
+
 impl Transition<Arc<str>, ()> {
   pub fn silent() -> Self {
     let id = next_id();
-    const NAME: &str = "tau";
+    let name = silent_transition_name(id);
 
     Self {
       id,
-      name: Arc::from(format!("{NAME}_{id}")),
+      name: Arc::clone(&name),
       silent_transition: true,
       incoming_arcs: vec![],
       outgoing_arcs: vec![],
-      data: Some(Arc::from(format!("{NAME}_{id}"))),
+      data: Some(name),
     }
   }
 }

@@ -1,13 +1,17 @@
 use super::arc::PetriNetArc;
-use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
+use crate::features::discovery::petri_net::{
+  marking::{Marking, SingleMarking},
+  place::Place,
+  transition::{Transition, silent_transition_name},
+};
 use std::{collections::HashMap, sync::Arc};
 
 pub type DefaultPetriNet = PetriNet<Arc<str>, ()>;
 
 #[derive(Debug, Default)]
 struct PlaceTransitions {
-  incoming_transitions: Vec<u64>,
-  outgoing_transitions: Vec<u64>,
+  pub(super) incoming_transitions: Vec<u64>,
+  pub(super) outgoing_transitions: Vec<u64>,
 }
 
 pub const EMPTY_PLACE_TRANSITIONS: &PlaceTransitions = &PlaceTransitions {
@@ -188,6 +192,105 @@ where
 
   pub fn get_outgoing_transitions(&self, place_id: &u64) -> Vec<&Transition<TTransitionData, TArcData>> {
     self.map_transitions(&self.get_place_transitions(place_id).outgoing_transitions)
+  }
+}
+
+impl<Tt: Clone + ToString, Ta: Clone> PetriNet<Tt, Ta> {
+  pub fn create_remapped_net(&self) -> Self {
+    #[derive(Default)]
+    struct Remapping {
+      remapping: HashMap<u64, u64>,
+    }
+
+    impl Remapping {
+      pub fn get_id(&mut self, id: u64) -> u64 {
+        let len = self.remapping.len();
+        *self.remapping.entry(id).or_insert(len as u64)
+      }
+    }
+
+    let mut remapping = Remapping::default();
+
+    let remap_marking = |marking: &Marking, r: &mut Remapping| Marking {
+      active_places: marking
+        .active_places
+        .iter()
+        .map(|p| SingleMarking {
+          place_id: r.get_id(p.place_id),
+          tokens_count: p.tokens_count,
+        })
+        .collect(),
+    };
+
+    let remap_arc = |a: &PetriNetArc<Ta>, r: &mut Remapping| PetriNetArc {
+      id: r.get_id(a.id),
+      data: a.data.clone(),
+      tokens_count: a.tokens_count,
+      place_id: r.get_id(a.place_id),
+    };
+
+    let remap_places = |places: &[&Place], r: &mut Remapping| {
+      places
+        .into_iter()
+        .map(|p| {
+          let id = r.get_id(p.id);
+          let p = Place {
+            id,
+            name: p.name.clone(),
+            user_data: p.user_data.clone(),
+          };
+
+          (id, p)
+        })
+        .collect()
+    };
+
+    let remap_transitions = |transitions: &[&Transition<Tt, Ta>], r: &mut Remapping| {
+      transitions
+        .into_iter()
+        .map(|t| {
+          let id = r.get_id(t.id);
+          let t = Transition {
+            id,
+            name: match t.is_silent() {
+              false => t.name.clone(),
+              true => silent_transition_name(id),
+            },
+            data: t.data.clone(),
+            silent_transition: t.silent_transition,
+            incoming_arcs: t.incoming_arcs.iter().map(|a| remap_arc(a, r)).collect(),
+            outgoing_arcs: t.outgoing_arcs.iter().map(|a| remap_arc(a, r)).collect(),
+          };
+
+          (id, t)
+        })
+        .collect()
+    };
+
+    let remap_places_to_transitions = |pt: &HashMap<u64, PlaceTransitions>, r: &mut Remapping| {
+      let mut vec = pt.into_iter().collect::<Vec<_>>();
+      vec.sort_by_key(|(id, _)| *id);
+
+      vec
+        .into_iter()
+        .map(|(id, t)| {
+          let pt = PlaceTransitions {
+            outgoing_transitions: t.outgoing_transitions.iter().map(|&id| r.get_id(id)).collect(),
+            incoming_transitions: t.incoming_transitions.iter().map(|&id| r.get_id(id)).collect(),
+          };
+
+          (r.get_id(*id), pt)
+        })
+        .collect()
+    };
+
+    Self {
+      places: remap_places(&self.all_places_sorted(), &mut remapping),
+      transitions: remap_transitions(&self.all_transitions_sorted(), &mut remapping),
+      final_marking: self.final_marking.as_ref().map(|m| remap_marking(m, &mut remapping)),
+      initial_marking: self.initial_marking.as_ref().map(|m| remap_marking(m, &mut remapping)),
+      places_to_transitions: remap_places_to_transitions(&self.places_to_transitions, &mut remapping),
+    }
   }
 }
 
