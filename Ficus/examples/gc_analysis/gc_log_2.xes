@@ -1,0 +1,1652 @@
+<log>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.241693700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGENC_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.241693700+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="1"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766676"/>
+      <int key="QpcStamp" value="41207020121000"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="NonConcurrentGC"/>
+      <string key="XesActivityId" value="GC_1"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGENC_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.242792+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="1"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766668"/>
+      <int key="QpcStamp" value="41207021219291"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_1"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.242792+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277071300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277071300+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="2"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766674"/>
+      <int key="QpcStamp" value="41207055498666"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_2"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/CreateConcurrentThread::GC/CreateConcurrentThread::GC/CreateConcurrentThread::GC/CreateConcurrentThread::GC/CreateConcurrentThread::GC/CreateConcurrentThread]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277372718+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277696366+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277730900+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277732500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277839045+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCStart"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277925700+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766691"/>
+      <int key="QpcStamp" value="41207056353041"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_12"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.277926200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766691"/>
+      <int key="QpcStamp" value="41207056353583"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_12"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278316400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278417420+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278619942+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278625+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766699"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207057052333"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278626+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278635100+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766697"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207057062458"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278635800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="0"/>
+      <int key="NativeThreadId" value="766697"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207057063125"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278638100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.278829311+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.285624144+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.292245400+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766696"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207070672708"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.292305700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.292597281+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.292825651+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.293916754+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.294124654+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.294607127+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.296117600+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="2"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766692"/>
+      <int key="QpcStamp" value="41207074544958"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_2"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.296117600+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.329914500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.329914500+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="3"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766678"/>
+      <int key="QpcStamp" value="41207108341833"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_3"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330070700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330121700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330122200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330129640+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330206640+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330317200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330317700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330696700+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766695"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207109124000"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.330831920+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.331041060+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.331042300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.331074318+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.331253400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.331254200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766694"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207109681500"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.335710551+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.338743900+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766690"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207117171208"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.342473+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="4"/>
+      <string key="Depth" value="1"/>
+      <int key="NativeThreadId" value="766679"/>
+      <int key="QpcStamp" value="41207120900375"/>
+      <string key="Reason" value="AllocSmall"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="ForegroundGC"/>
+      <string key="XesActivityId" value="GC_4"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.344896500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="4"/>
+      <string key="Depth" value="1"/>
+      <int key="NativeThreadId" value="766668"/>
+      <int key="QpcStamp" value="41207123323875"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_4"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.346705472+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.351456872+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.352127581+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.352314294+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.352988445+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.353232418+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.353662518+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.355059200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="3"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766691"/>
+      <int key="QpcStamp" value="41207133486541"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_3"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.355059200+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377312500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377312500+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="5"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766673"/>
+      <int key="QpcStamp" value="41207155739833"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_5"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377565100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377569500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377571340+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.377665063+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378110500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766692"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207156537791"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378110700+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="0"/>
+      <int key="NativeThreadId" value="766692"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207156538041"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378127400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378127700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378129666+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378135480+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378137600+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766691"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207156564916"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378137800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="0"/>
+      <int key="NativeThreadId" value="766691"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207156565125"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.378318100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.386783820+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.397896190+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.398178636+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.398399897+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.399525772+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.399746154+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.400260854+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.401667500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="5"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766694"/>
+      <int key="QpcStamp" value="41207180094875"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_5"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.401667500+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424378500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424378500+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="6"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766679"/>
+      <int key="QpcStamp" value="41207202805833"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_6"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424620300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424620900+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766696"/>
+      <int key="QpcStamp" value="41207203048250"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_38"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCStart"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424621100+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766693"/>
+      <int key="QpcStamp" value="41207203048458"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_39"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424621700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424625200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424627750+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424697300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424700400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.424825785+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425433500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425433800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="0"/>
+      <int key="NativeThreadId" value="766698"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207203861125"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425434200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425434750+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425437266+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425439850+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425443100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.425657700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.433373239+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.445310418+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.445579654+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.445779602+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.446991827+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.447174972+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.447651827+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.448777800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="6"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207227205125"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_6"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.448777800+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.460435700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.460435700+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="7"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766674"/>
+      <int key="QpcStamp" value="41207238863083"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_7"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.460721795+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.461213330+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.461226133+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.461358333+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.461402300+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766691"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207239829666"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.461681200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.467163536+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.474932800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766694"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207253360125"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.474986663+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.475295563+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.475515680+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.476712+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.476939645+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.477465454+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.478707300+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="7"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207257134625"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_7"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.478707300+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490409+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490409+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="8"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766678"/>
+      <int key="QpcStamp" value="41207268836333"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_8"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490654700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490656433+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490661271+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCStart"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490670500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207269097875"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_69"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490678450+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.490787540+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.491280780+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.491602109+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.497433388+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.504539500+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="9"/>
+      <string key="Depth" value="0"/>
+      <int key="NativeThreadId" value="766676"/>
+      <int key="QpcStamp" value="41207282966791"/>
+      <string key="Reason" value="AllocSmall"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="ForegroundGC"/>
+      <string key="XesActivityId" value="GC_9"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.506627800+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="9"/>
+      <string key="Depth" value="0"/>
+      <int key="NativeThreadId" value="766668"/>
+      <int key="QpcStamp" value="41207285055166"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_9"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.510780282+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.514342818+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.514741945+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.514991697+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.515814063+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.515922845+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.516326609+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.517336500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="8"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766690"/>
+      <int key="QpcStamp" value="41207295763875"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_8"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.517336500+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.528926300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.528926300+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="10"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766675"/>
+      <int key="QpcStamp" value="41207307353625"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_10"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.529071957+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.529224209+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.529318700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.529916984+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCDrainMark::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.529965860+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.538246069+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.549502127+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.549862918+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.550068500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.551248500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.551507036+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.552010781+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.553635400+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="10"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207332062750"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_10"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.553635400+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564404300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564404300+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="11"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766673"/>
+      <int key="QpcStamp" value="41207342831666"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_11"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564660900+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564678700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564680200+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.564762546+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565273+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766692"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207343700333"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565434560+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565789814+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565795620+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565877433+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.565996100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.566033+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766694"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207344460375"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.574143009+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.584659454+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.584954445+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.585000145+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.586112463+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.586320500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.586879500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.588125200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="11"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766689"/>
+      <int key="QpcStamp" value="41207366552500"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_11"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.588125200+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599183100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599183100+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="12"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766679"/>
+      <int key="QpcStamp" value="41207377610416"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_12"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599414633+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599416450+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599418180+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599486485+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599495100+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766698"/>
+      <int key="QpcStamp" value="41207377922458"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCStart"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599607100+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207378034458"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_108"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.599607500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766697"/>
+      <int key="QpcStamp" value="41207378034833"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_108"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.600223336+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.600290112+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.607793291+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.619117+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766689"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207397544375"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.619173009+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.619499800+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.619701720+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.620731736+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.620967490+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.621681536+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.623130200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="12"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766698"/>
+      <int key="QpcStamp" value="41207401557541"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_12"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.623130200+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.634341500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.634341500+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="13"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766672"/>
+      <int key="QpcStamp" value="41207412768875"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_13"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.634589466+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.634597700+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.634732509+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.635176055+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCDrainMark::GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.635193528+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.635633454+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.636105690+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.638449800+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="14"/>
+      <string key="Depth" value="1"/>
+      <int key="NativeThreadId" value="766679"/>
+      <int key="QpcStamp" value="41207416877125"/>
+      <string key="Reason" value="AllocSmall"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="ForegroundGC"/>
+      <string key="XesActivityId" value="GC_14"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_SMALLF_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.641068400+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="14"/>
+      <string key="Depth" value="1"/>
+      <int key="NativeThreadId" value="766668"/>
+      <int key="QpcStamp" value="41207419495708"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_14"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.647789670+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.654255027+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.654534309+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.654722131+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.655878809+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.656113236+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.656511600+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.657753500+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="13"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766691"/>
+      <int key="QpcStamp" value="41207436180875"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_13"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.657753500+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669082400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669082400+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="15"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766673"/>
+      <int key="QpcStamp" value="41207447509708"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_15"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669336600+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669340580+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669343400+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766690"/>
+      <int key="QpcStamp" value="41207447770750"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_128"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop::GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669506914+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGC1stNonCondStop"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.669536200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766692"/>
+      <int key="QpcStamp" value="41207447963500"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_132"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670089366+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670091900+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670092300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670092400+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766690"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207448519750"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670092700+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="0"/>
+      <int key="NativeThreadId" value="766690"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207448520041"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670099750+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670120540+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.670272600+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766694"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207448699958"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.680329968+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.690306672+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.690719100+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.690944628+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.692110436+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.692367081+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.692932436+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.694527200+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="15"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766698"/>
+      <int key="QpcStamp" value="41207472954541"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_15"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.694527200+00:00"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_START"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705601400+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Start_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705601400+00:00"/>
+      <string key="ClientSequenceNumber" value="0"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="16"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766675"/>
+      <int key="QpcStamp" value="41207484028708"/>
+      <string key="Reason" value="AllocLarge"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="Type" value="BackgroundGC"/>
+      <string key="XesActivityId" value="GC_16"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705824650+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGC1stNonCondStop::GC/BGCStart::GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705827111+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop::GC/BGCStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705910633+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCStart"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705953+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766694"/>
+      <int key="QpcStamp" value="41207484380291"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="InitialBlockingMarking_142"/>
+      <string key="XesLifecycleTransition" value="start"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705954+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCStart::GC/BGC1stNonCondStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.705998966+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706596300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706596600+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706605220+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706623760+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCDrainMark::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706684500+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706779+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCDrainMark"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.706781+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <int key="NativeThreadId" value="766694"/>
+      <string key="Objects" value="0"/>
+      <int key="QpcStamp" value="41207485208375"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.717493023+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/BGCRevisit"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.732893900+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="IsLarge" value="1"/>
+      <int key="NativeThreadId" value="766697"/>
+      <string key="Objects" value="0"/>
+      <string key="Pages" value="0"/>
+      <int key="QpcStamp" value="41207511321208"/>
+      <int key="ThreadId" value="-1"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop::GC/BGC1stConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.732973300+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart::GC/BGC2ndNonConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.733326918+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit::GC/BGCRevisit]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.733528425+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop::GC/BGC2ndNonConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.734753018+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart::GC/BGC2ndConStart]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.734969763+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="Loop[GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop::GC/BGC2ndConStop]"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.735593918+00:00"/>
+    </event>
+    <event>
+      <string key="concept:name" value="GC/Stop_{ALLOC_LARGEB_GC}"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.736800700+00:00"/>
+      <string key="ClrInstanceID" value="0"/>
+      <string key="Count" value="16"/>
+      <string key="Depth" value="2"/>
+      <int key="NativeThreadId" value="766690"/>
+      <int key="QpcStamp" value="41207515228083"/>
+      <int key="ThreadId" value="-1"/>
+      <string key="XesActivityId" value="GC_16"/>
+      <string key="XesLifecycleTransition" value="complete"/>
+    </event>
+    <event>
+      <string key="concept:name" value="ARTIFICIAL_END"/>
+      <date key="time:timestamp" value="2025-04-13T18:19:39.736800700+00:00"/>
+    </event>
+  </trace>
+</log>
