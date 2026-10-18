@@ -1,0 +1,217 @@
+<pnml>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <place id="199">
+    </place>
+    <place id="209">
+    </place>
+    <place id="194">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
+    </place>
+    <place id="229">
+    </place>
+    <place id="204">
+    </place>
+    <place id="219">
+    </place>
+    <place id="214">
+    </place>
+    <place id="224">
+    </place>
+    <place id="200">
+    </place>
+    <place id="210">
+    </place>
+    <place id="195">
+    </place>
+    <place id="230">
+    </place>
+    <place id="205">
+    </place>
+    <place id="220">
+    </place>
+    <place id="215">
+    </place>
+    <place id="225">
+    </place>
+    <transition id="198">
+      <name>
+        <text>A</text>
+      </name>
+    </transition>
+    <transition id="208">
+      <name>
+        <text>ARTIFICIAL_END</text>
+      </name>
+    </transition>
+    <transition id="193">
+      <name>
+        <text>ARTIFICIAL_START</text>
+      </name>
+    </transition>
+    <transition id="228">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="203">
+      <name>
+        <text>C</text>
+      </name>
+    </transition>
+    <transition id="218">
+      <name>
+        <text>X</text>
+      </name>
+    </transition>
+    <transition id="213">
+      <name>
+        <text>Y</text>
+      </name>
+    </transition>
+    <transition id="223">
+      <name>
+        <text>Z</text>
+      </name>
+    </transition>
+    <transition id="233">
+      <name>
+        <text>tau_233</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="236">
+      <name>
+        <text>tau_236</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="239">
+      <name>
+        <text>tau_239</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="242">
+      <name>
+        <text>tau_242</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="245">
+      <name>
+        <text>tau_245</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="248">
+      <name>
+        <text>tau_248</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="251">
+      <name>
+        <text>tau_251</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="254">
+      <name>
+        <text>tau_254</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="257">
+      <name>
+        <text>tau_257</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="196" source="194" target="193">
+    </arc>
+    <arc id="197" source="193" target="195">
+    </arc>
+    <arc id="201" source="199" target="198">
+    </arc>
+    <arc id="202" source="198" target="200">
+    </arc>
+    <arc id="206" source="204" target="203">
+    </arc>
+    <arc id="207" source="203" target="205">
+    </arc>
+    <arc id="211" source="209" target="208">
+    </arc>
+    <arc id="212" source="208" target="210">
+    </arc>
+    <arc id="216" source="214" target="213">
+    </arc>
+    <arc id="217" source="213" target="215">
+    </arc>
+    <arc id="221" source="219" target="218">
+    </arc>
+    <arc id="222" source="218" target="220">
+    </arc>
+    <arc id="226" source="224" target="223">
+    </arc>
+    <arc id="227" source="223" target="225">
+    </arc>
+    <arc id="231" source="229" target="228">
+    </arc>
+    <arc id="232" source="228" target="230">
+    </arc>
+    <arc id="234" source="195" target="233">
+    </arc>
+    <arc id="235" source="233" target="199">
+    </arc>
+    <arc id="237" source="205" target="236">
+    </arc>
+    <arc id="238" source="236" target="209">
+    </arc>
+    <arc id="240" source="230" target="239">
+    </arc>
+    <arc id="241" source="239" target="214">
+    </arc>
+    <arc id="243" source="200" target="242">
+    </arc>
+    <arc id="244" source="242" target="219">
+    </arc>
+    <arc id="246" source="230" target="245">
+    </arc>
+    <arc id="247" source="245" target="224">
+    </arc>
+    <arc id="249" source="215" target="248">
+    </arc>
+    <arc id="250" source="248" target="204">
+    </arc>
+    <arc id="252" source="220" target="251">
+    </arc>
+    <arc id="253" source="251" target="204">
+    </arc>
+    <arc id="255" source="225" target="254">
+    </arc>
+    <arc id="256" source="254" target="204">
+    </arc>
+    <arc id="258" source="200" target="257">
+    </arc>
+    <arc id="259" source="257" target="229">
+    </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="210">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>
