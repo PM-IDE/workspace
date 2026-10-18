@@ -33,11 +33,19 @@ const ID_ATTR_NAME: &str = "id";
 const SOURCE_ATTR_NAME: &str = "source";
 const TARGET_ATTR_NAME: &str = "target";
 
-pub fn serialize_to_pnml_file<TTransitionData: Clone + ToString, TArcData: Clone>(
+const ID_ATTR: &str = "id";
+const PETRI_NET_ID: &str = "petri_net";
+const TYPE_ATTR: &str = "type";
+const PNML_HTTP_REF: &str = "http://www.pnml.org/version-2009/grammar/pnmlcoremodel";
+
+pub fn serialize_to_pnml_file<TTransitionData, TArcData>(
   net: &PetriNet<TTransitionData, TArcData>,
   save_path: &str,
   use_names_as_ids: bool,
-) -> Result<(), XmlWriteError> {
+) -> Result<(), XmlWriteError>
+where
+  TTransitionData: ToString,
+{
   match serialize_to_pnml(net, use_names_as_ids) {
     Ok(content) => match fs::write(save_path, content) {
       Ok(_) => Ok(()),
@@ -47,20 +55,20 @@ pub fn serialize_to_pnml_file<TTransitionData: Clone + ToString, TArcData: Clone
   }
 }
 
-pub fn serialize_to_pnml<TTransitionData: Clone + ToString, TArcData: Clone>(
+pub fn serialize_to_pnml<TTransitionData, TArcData>(
   net: &PetriNet<TTransitionData, TArcData>,
   use_names_as_ids: bool,
 ) -> Result<String, XmlWriteError>
 where
   TTransitionData: ToString,
 {
-  let net = net.create_remapped_net();
-  let net = &net;
-
   let writer = RefCell::new(Writer::new_with_indent(Cursor::new(Vec::new()), b' ', 2));
 
   let pnml_cookie = StartEndElementCookie::new(&writer, PNML_TAG_NAME)?;
-  let net_cookie = StartEndElementCookie::new(&writer, NET_TAG_NAME)?;
+  let net_cookie = StartEndElementCookie::new_with_attrs(&writer, NET_TAG_NAME, &vec![
+    (ID_ATTR, PETRI_NET_ID),
+    (TYPE_ATTR, PNML_HTTP_REF)
+  ])?;
 
   write_places(net, &writer, use_names_as_ids)?;
   write_transitions(net, &writer, use_names_as_ids)?;
@@ -85,7 +93,10 @@ fn write_places<TTransitionData, TArcData>(
 where
   TTransitionData: ToString,
 {
-  for place in net.all_places_sorted() {
+  let mut places = net.all_places();
+  places.sort_by(|left, right| left.name().cmp(right.name()));
+
+  for place in places {
     let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       PLACE_TAG_NAME,
@@ -156,23 +167,25 @@ fn write_transitions<TTransitionData, TArcData>(
 where
   TTransitionData: ToString,
 {
-  for transition in net.all_transitions_sorted() {
+  for transition in created_ordered_transitions_list(net) {
     let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       TRANSITION_TAG_NAME,
       &vec![(ID_ATTR_NAME, create_transition_id(transition, use_names_as_ids).as_str())],
     )?;
 
-    let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
-    let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
+    if let Some(data) = transition.data() {
+      let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
+      let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
 
-    write_text(writer, &clean_string(transition.name.to_string()))?;
+      write_text(writer, &clean_string(data.to_string()))?;
 
-    drop(text);
-    drop(name);
+      drop(text);
+      drop(name);
+    }
 
     if transition.is_silent() {
-      let _ = StartEndElementCookie::new_with_attrs(
+      let _silent_transition = StartEndElementCookie::new_with_attrs(
         writer,
         TOOL_SPECIFIC_TAG_NAME,
         &vec![
@@ -187,6 +200,18 @@ where
   }
 
   Ok(())
+}
+
+fn created_ordered_transitions_list<TTransitionData, TArcData>(
+  net: &PetriNet<TTransitionData, TArcData>,
+) -> Vec<&Transition<TTransitionData, TArcData>>
+where
+  TTransitionData: ToString,
+{
+  let mut transitions = net.all_transitions();
+  transitions.sort_by(|left, right| left.name().cmp(right.name()));
+
+  transitions
 }
 
 fn write_arcs<TTransitionData, TArcData>(
@@ -228,10 +253,10 @@ where
     ));
   }
 
-  all_arcs.sort_by_key(|(a1, ..)| a1.id());
+  all_arcs.sort_by(|(_, n1, ..), (_, n2, ..)| n1.cmp(n2));
 
   for (_, name, from, to) in all_arcs {
-    StartEndElementCookie::new_with_attrs(
+    let _arc = StartEndElementCookie::new_with_attrs(
       writer,
       ARC_TAG_NAME,
       &vec![(ID_ATTR_NAME, &name), (SOURCE_ATTR_NAME, &from), (TARGET_ATTR_NAME, &to)],
@@ -271,7 +296,7 @@ fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
     })
     .collect();
 
-  arcs.sort_by_key(|(a, ..)| a.id());
+  arcs.sort_by(|first, second| first.1.cmp(&second.1));
   arcs
 }
 
