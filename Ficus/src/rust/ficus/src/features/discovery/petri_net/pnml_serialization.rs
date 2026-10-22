@@ -38,14 +38,11 @@ const PETRI_NET_ID: &str = "petri_net";
 const TYPE_ATTR: &str = "type";
 const PNML_HTTP_REF: &str = "http://www.pnml.org/version-2009/grammar/pnmlcoremodel";
 
-pub fn serialize_to_pnml_file<TTransitionData, TArcData>(
+pub fn serialize_to_pnml_file<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   save_path: &str,
   use_names_as_ids: bool,
-) -> Result<(), XmlWriteError>
-where
-  TTransitionData: ToString,
-{
+) -> Result<(), XmlWriteError> {
   match serialize_to_pnml(net, use_names_as_ids) {
     Ok(content) => match fs::write(save_path, content) {
       Ok(_) => Ok(()),
@@ -55,13 +52,11 @@ where
   }
 }
 
-pub fn serialize_to_pnml<TTransitionData, TArcData>(
+pub fn serialize_to_pnml<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   use_names_as_ids: bool,
-) -> Result<String, XmlWriteError>
-where
-  TTransitionData: ToString,
-{
+) -> Result<String, XmlWriteError> {
+  let net = net.create_remapped_net();
   let writer = RefCell::new(Writer::new_with_indent(Cursor::new(Vec::new()), b' ', 2));
 
   let pnml_cookie = StartEndElementCookie::new(&writer, PNML_TAG_NAME)?;
@@ -70,10 +65,10 @@ where
     (TYPE_ATTR, PNML_HTTP_REF)
   ])?;
 
-  write_places(net, &writer, use_names_as_ids)?;
-  write_transitions(net, &writer, use_names_as_ids)?;
-  write_arcs(net, &writer, use_names_as_ids)?;
-  write_final_markings(net, &writer, use_names_as_ids)?;
+  write_places(&net, &writer, use_names_as_ids)?;
+  write_transitions(&net, &writer, use_names_as_ids)?;
+  write_arcs(&net, &writer, use_names_as_ids)?;
+  write_final_markings(&net, &writer, use_names_as_ids)?;
 
   drop(net_cookie);
   drop(pnml_cookie);
