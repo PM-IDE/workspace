@@ -143,7 +143,7 @@ def _draw_traces_diversity_like_diagram_internal(log: Union[MyEventLog, list[lis
 
   if plot_legend:
     ax.legend(ctx.names_to_rects.values(),
-              ctx.names_to_rects.keys(),
+              list(map(lambda x: x[:50] if len(x) > 50 else x, ctx.names_to_rects.keys())),
               loc='upper center',
               bbox_to_anchor=(0.5, -0.15),
               fontsize=20)
@@ -255,7 +255,7 @@ def draw_colors_event_log(log: list[list[ColoredRectangle]],
       for colored_rect in trace:
         width = ctx.rect_width * colored_rect.length
         rect = plt.Rectangle((current_x, current_y), width, ctx.rect_height, fc=colored_rect.color.to_hex())
-        ctx.names_to_rects[colored_rect.name[:50] if len(colored_rect.name) > 50 else colored_rect.name] = rect
+        ctx.names_to_rects[colored_rect.name] = rect
         patch_collection.append(rect)
         current_x += width
 

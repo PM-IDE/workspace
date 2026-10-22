@@ -1,0 +1,193 @@
+<pnml>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <place id="2">
+    </place>
+    <place id="8">
+    </place>
+    <place id="0">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
+    </place>
+    <place id="4">
+    </place>
+    <place id="10">
+    </place>
+    <place id="12">
+    </place>
+    <place id="6">
+    </place>
+    <place id="3">
+    </place>
+    <place id="9">
+    </place>
+    <place id="1">
+    </place>
+    <place id="5">
+    </place>
+    <place id="13">
+    </place>
+    <place id="11">
+    </place>
+    <place id="7">
+    </place>
+    <transition id="17">
+      <name>
+        <text>A</text>
+      </name>
+    </transition>
+    <transition id="26">
+      <name>
+        <text>ARTIFICIAL_END</text>
+      </name>
+    </transition>
+    <transition id="14">
+      <name>
+        <text>ARTIFICIAL_START</text>
+      </name>
+    </transition>
+    <transition id="20">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="32">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="29">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="23">
+      <name>
+        <text>C</text>
+      </name>
+    </transition>
+    <transition id="35">
+      <name>
+        <text>tau_35</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="38">
+      <name>
+        <text>tau_38</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="41">
+      <name>
+        <text>tau_41</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="44">
+      <name>
+        <text>tau_44</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="47">
+      <name>
+        <text>tau_47</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="50">
+      <name>
+        <text>tau_50</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="53">
+      <name>
+        <text>tau_53</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="56">
+      <name>
+        <text>tau_56</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="15" source="0" target="14">
+    </arc>
+    <arc id="16" source="14" target="1">
+    </arc>
+    <arc id="18" source="2" target="17">
+    </arc>
+    <arc id="19" source="17" target="3">
+    </arc>
+    <arc id="21" source="4" target="20">
+    </arc>
+    <arc id="22" source="20" target="5">
+    </arc>
+    <arc id="24" source="6" target="23">
+    </arc>
+    <arc id="25" source="23" target="7">
+    </arc>
+    <arc id="27" source="8" target="26">
+    </arc>
+    <arc id="28" source="26" target="9">
+    </arc>
+    <arc id="30" source="10" target="29">
+    </arc>
+    <arc id="31" source="29" target="11">
+    </arc>
+    <arc id="33" source="12" target="32">
+    </arc>
+    <arc id="34" source="32" target="13">
+    </arc>
+    <arc id="36" source="1" target="35">
+    </arc>
+    <arc id="37" source="35" target="2">
+    </arc>
+    <arc id="39" source="3" target="38">
+    </arc>
+    <arc id="40" source="38" target="4">
+    </arc>
+    <arc id="42" source="5" target="41">
+    </arc>
+    <arc id="43" source="41" target="6">
+    </arc>
+    <arc id="45" source="7" target="44">
+    </arc>
+    <arc id="46" source="44" target="8">
+    </arc>
+    <arc id="48" source="3" target="47">
+    </arc>
+    <arc id="49" source="47" target="10">
+    </arc>
+    <arc id="51" source="3" target="50">
+    </arc>
+    <arc id="52" source="50" target="12">
+    </arc>
+    <arc id="54" source="13" target="53">
+    </arc>
+    <arc id="55" source="53" target="10">
+    </arc>
+    <arc id="57" source="11" target="56">
+    </arc>
+    <arc id="58" source="56" target="4">
+    </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="9">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

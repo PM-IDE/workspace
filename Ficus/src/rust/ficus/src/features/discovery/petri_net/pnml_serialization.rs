@@ -33,14 +33,16 @@ const ID_ATTR_NAME: &str = "id";
 const SOURCE_ATTR_NAME: &str = "source";
 const TARGET_ATTR_NAME: &str = "target";
 
-pub fn serialize_to_pnml_file<TTransitionData, TArcData>(
+const ID_ATTR: &str = "id";
+const PETRI_NET_ID: &str = "petri_net";
+const TYPE_ATTR: &str = "type";
+const PNML_HTTP_REF: &str = "http://www.pnml.org/version-2009/grammar/pnmlcoremodel";
+
+pub fn serialize_to_pnml_file<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   save_path: &str,
   use_names_as_ids: bool,
-) -> Result<(), XmlWriteError>
-where
-  TTransitionData: ToString,
-{
+) -> Result<(), XmlWriteError> {
   match serialize_to_pnml(net, use_names_as_ids) {
     Ok(content) => match fs::write(save_path, content) {
       Ok(_) => Ok(()),
@@ -50,22 +52,23 @@ where
   }
 }
 
-pub fn serialize_to_pnml<TTransitionData, TArcData>(
+pub fn serialize_to_pnml<TTransitionData: Clone + ToString, TArcData: Clone>(
   net: &PetriNet<TTransitionData, TArcData>,
   use_names_as_ids: bool,
-) -> Result<String, XmlWriteError>
-where
-  TTransitionData: ToString,
-{
+) -> Result<String, XmlWriteError> {
+  let net = net.create_remapped_net();
   let writer = RefCell::new(Writer::new_with_indent(Cursor::new(Vec::new()), b' ', 2));
 
   let pnml_cookie = StartEndElementCookie::new(&writer, PNML_TAG_NAME)?;
-  let net_cookie = StartEndElementCookie::new(&writer, NET_TAG_NAME)?;
+  let net_cookie = StartEndElementCookie::new_with_attrs(&writer, NET_TAG_NAME, &vec![
+    (ID_ATTR, PETRI_NET_ID),
+    (TYPE_ATTR, PNML_HTTP_REF)
+  ])?;
 
-  write_places(net, &writer, use_names_as_ids)?;
-  write_transitions(net, &writer, use_names_as_ids)?;
-  write_arcs(net, &writer, use_names_as_ids)?;
-  write_final_markings(net, &writer, use_names_as_ids)?;
+  write_places(&net, &writer, use_names_as_ids)?;
+  write_transitions(&net, &writer, use_names_as_ids)?;
+  write_arcs(&net, &writer, use_names_as_ids)?;
+  write_final_markings(&net, &writer, use_names_as_ids)?;
 
   drop(net_cookie);
   drop(pnml_cookie);
@@ -177,7 +180,7 @@ where
     }
 
     if transition.is_silent() {
-      let _ = StartEndElementCookie::new_with_attrs(
+      let _silent_transition = StartEndElementCookie::new_with_attrs(
         writer,
         TOOL_SPECIFIC_TAG_NAME,
         &vec![
@@ -248,7 +251,7 @@ where
   all_arcs.sort_by(|(_, n1, ..), (_, n2, ..)| n1.cmp(n2));
 
   for (_, name, from, to) in all_arcs {
-    StartEndElementCookie::new_with_attrs(
+    let _arc = StartEndElementCookie::new_with_attrs(
       writer,
       ARC_TAG_NAME,
       &vec![(ID_ATTR_NAME, &name), (SOURCE_ATTR_NAME, &from), (TARGET_ATTR_NAME, &to)],

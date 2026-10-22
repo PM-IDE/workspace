@@ -4,9 +4,9 @@ const EMPTY_PLACE_NAME: &str = "EmptyPlace";
 
 #[derive(Debug)]
 pub struct Place {
-  id: u64,
-  name: String,
-  user_data: UserDataImpl,
+  pub(super) id: u64,
+  pub(super) name: String,
+  pub(super) user_data: UserDataImpl,
 }
 
 impl Place {

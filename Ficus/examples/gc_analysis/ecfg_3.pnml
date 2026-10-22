@@ -1,0 +1,396 @@
+<pnml>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <place id="14">
+    </place>
+    <place id="18">
+    </place>
+    <place id="10">
+    </place>
+    <place id="26">
+    </place>
+    <place id="12">
+    </place>
+    <place id="28">
+    </place>
+    <place id="16">
+    </place>
+    <place id="20">
+    </place>
+    <place id="22">
+    </place>
+    <place id="24">
+    </place>
+    <place id="4">
+    </place>
+    <place id="6">
+    </place>
+    <place id="2">
+    </place>
+    <place id="0">
+      <initialMarking>
+        <text>1</text>
+      </initialMarking>
+    </place>
+    <place id="8">
+    </place>
+    <place id="15">
+    </place>
+    <place id="19">
+    </place>
+    <place id="11">
+    </place>
+    <place id="27">
+    </place>
+    <place id="13">
+    </place>
+    <place id="29">
+    </place>
+    <place id="17">
+    </place>
+    <place id="21">
+    </place>
+    <place id="23">
+    </place>
+    <place id="25">
+    </place>
+    <place id="5">
+    </place>
+    <place id="7">
+    </place>
+    <place id="3">
+    </place>
+    <place id="1">
+    </place>
+    <place id="9">
+    </place>
+    <transition id="51">
+      <name>
+        <text>0</text>
+      </name>
+    </transition>
+    <transition id="45">
+      <name>
+        <text>2</text>
+      </name>
+    </transition>
+    <transition id="57">
+      <name>
+        <text>2</text>
+      </name>
+    </transition>
+    <transition id="48">
+      <name>
+        <text>3</text>
+      </name>
+    </transition>
+    <transition id="72">
+      <name>
+        <text>3</text>
+      </name>
+    </transition>
+    <transition id="69">
+      <name>
+        <text>3</text>
+      </name>
+    </transition>
+    <transition id="54">
+      <name>
+        <text>4</text>
+      </name>
+    </transition>
+    <transition id="60">
+      <name>
+        <text>5</text>
+      </name>
+    </transition>
+    <transition id="63">
+      <name>
+        <text>6</text>
+      </name>
+    </transition>
+    <transition id="66">
+      <name>
+        <text>7</text>
+      </name>
+    </transition>
+    <transition id="36">
+      <name>
+        <text>8</text>
+      </name>
+    </transition>
+    <transition id="39">
+      <name>
+        <text>9</text>
+      </name>
+    </transition>
+    <transition id="33">
+      <name>
+        <text>ARTIFICIAL_END</text>
+      </name>
+    </transition>
+    <transition id="30">
+      <name>
+        <text>ARTIFICIAL_START</text>
+      </name>
+    </transition>
+    <transition id="42">
+      <name>
+        <text>Loop[1::1::1::1::1::1]</text>
+      </name>
+    </transition>
+    <transition id="102">
+      <name>
+        <text>tau_21716</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="105">
+      <name>
+        <text>tau_21719</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="108">
+      <name>
+        <text>tau_21722</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="111">
+      <name>
+        <text>tau_21725</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="114">
+      <name>
+        <text>tau_21728</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="117">
+      <name>
+        <text>tau_21731</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="120">
+      <name>
+        <text>tau_21734</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="123">
+      <name>
+        <text>tau_21737</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="75">
+      <name>
+        <text>tau_21689</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="78">
+      <name>
+        <text>tau_21692</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="81">
+      <name>
+        <text>tau_21695</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="84">
+      <name>
+        <text>tau_21698</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="87">
+      <name>
+        <text>tau_21701</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="90">
+      <name>
+        <text>tau_21704</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="93">
+      <name>
+        <text>tau_21707</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="96">
+      <name>
+        <text>tau_21710</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="99">
+      <name>
+        <text>tau_21713</text>
+      </name>
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <arc id="100" source="27" target="99">
+    </arc>
+    <arc id="101" source="99" target="2">
+    </arc>
+    <arc id="103" source="1" target="102">
+    </arc>
+    <arc id="104" source="102" target="14">
+    </arc>
+    <arc id="106" source="15" target="105">
+    </arc>
+    <arc id="107" source="105" target="16">
+    </arc>
+    <arc id="109" source="15" target="108">
+    </arc>
+    <arc id="110" source="108" target="18">
+    </arc>
+    <arc id="112" source="17" target="111">
+    </arc>
+    <arc id="113" source="111" target="20">
+    </arc>
+    <arc id="115" source="21" target="114">
+    </arc>
+    <arc id="116" source="114" target="22">
+    </arc>
+    <arc id="118" source="23" target="117">
+    </arc>
+    <arc id="119" source="117" target="24">
+    </arc>
+    <arc id="121" source="25" target="120">
+    </arc>
+    <arc id="122" source="120" target="26">
+    </arc>
+    <arc id="124" source="19" target="123">
+    </arc>
+    <arc id="125" source="123" target="28">
+    </arc>
+    <arc id="31" source="0" target="30">
+    </arc>
+    <arc id="32" source="30" target="1">
+    </arc>
+    <arc id="34" source="2" target="33">
+    </arc>
+    <arc id="35" source="33" target="3">
+    </arc>
+    <arc id="37" source="4" target="36">
+    </arc>
+    <arc id="38" source="36" target="5">
+    </arc>
+    <arc id="40" source="6" target="39">
+    </arc>
+    <arc id="41" source="39" target="7">
+    </arc>
+    <arc id="43" source="8" target="42">
+    </arc>
+    <arc id="44" source="42" target="9">
+    </arc>
+    <arc id="46" source="10" target="45">
+    </arc>
+    <arc id="47" source="45" target="11">
+    </arc>
+    <arc id="49" source="12" target="48">
+    </arc>
+    <arc id="50" source="48" target="13">
+    </arc>
+    <arc id="52" source="14" target="51">
+    </arc>
+    <arc id="53" source="51" target="15">
+    </arc>
+    <arc id="55" source="16" target="54">
+    </arc>
+    <arc id="56" source="54" target="17">
+    </arc>
+    <arc id="58" source="18" target="57">
+    </arc>
+    <arc id="59" source="57" target="19">
+    </arc>
+    <arc id="61" source="20" target="60">
+    </arc>
+    <arc id="62" source="60" target="21">
+    </arc>
+    <arc id="64" source="22" target="63">
+    </arc>
+    <arc id="65" source="63" target="23">
+    </arc>
+    <arc id="67" source="24" target="66">
+    </arc>
+    <arc id="68" source="66" target="25">
+    </arc>
+    <arc id="70" source="26" target="69">
+    </arc>
+    <arc id="71" source="69" target="27">
+    </arc>
+    <arc id="73" source="28" target="72">
+    </arc>
+    <arc id="74" source="72" target="29">
+    </arc>
+    <arc id="76" source="1" target="75">
+    </arc>
+    <arc id="77" source="75" target="4">
+    </arc>
+    <arc id="79" source="5" target="78">
+    </arc>
+    <arc id="80" source="78" target="6">
+    </arc>
+    <arc id="82" source="7" target="81">
+    </arc>
+    <arc id="83" source="81" target="2">
+    </arc>
+    <arc id="85" source="15" target="84">
+    </arc>
+    <arc id="86" source="84" target="8">
+    </arc>
+    <arc id="88" source="9" target="87">
+    </arc>
+    <arc id="89" source="87" target="10">
+    </arc>
+    <arc id="91" source="11" target="90">
+    </arc>
+    <arc id="92" source="90" target="12">
+    </arc>
+    <arc id="94" source="13" target="93">
+    </arc>
+    <arc id="95" source="93" target="2">
+    </arc>
+    <arc id="97" source="29" target="96">
+    </arc>
+    <arc id="98" source="96" target="2">
+    </arc>
+    <finalmarkings>
+      <marking>
+        <place idref="3">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

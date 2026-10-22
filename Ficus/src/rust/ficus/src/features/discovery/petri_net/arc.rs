@@ -2,10 +2,10 @@ use crate::features::discovery::petri_net::ids::next_id;
 
 #[derive(Debug)]
 pub struct PetriNetArc<TArcData> {
-  id: u64,
-  place_id: u64,
-  data: Option<TArcData>,
-  tokens_count: usize,
+  pub(super) id: u64,
+  pub(super) place_id: u64,
+  pub(super) data: Option<TArcData>,
+  pub(super) tokens_count: usize,
 }
 
 impl<TArcData> PetriNetArc<TArcData> {

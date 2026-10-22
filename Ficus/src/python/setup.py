@@ -30,7 +30,7 @@ setuptools.setup(
             'ficus.grpc_pipelines',
             'ficus.grpc_pipelines.models',
             'ficus.grpc_pipelines.entry_points'],
-  install_requires=['pm4py==2.7.7',
+  install_requires=['pm4py==2.7.23.6',
                     'matplotlib==3.8.0',
                     'matplotlib-inline==0.1.6',
                     'graphviz~=0.20.1',

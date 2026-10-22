@@ -103,6 +103,13 @@ where
     self.nodes.values().collect()
   }
 
+  pub fn all_nodes_sorted(&self) -> Vec<&GraphNode<TNodeData>> {
+    let mut nodes = self.all_nodes();
+    nodes.sort_by_key(|n| n.id);
+
+    nodes
+  }
+
   pub fn all_nodes_mut(&mut self) -> Vec<&mut GraphNode<TNodeData>> {
     self.nodes.values_mut().collect()
   }
@@ -114,6 +121,13 @@ where
         edges.push(edge)
       }
     }
+
+    edges
+  }
+
+  pub fn all_edges_sorted(&self) -> Vec<&GraphEdge<TEdgeData>> {
+    let mut edges = self.all_edges();
+    edges.sort_by_key(|e| e.id);
 
     edges
   }
