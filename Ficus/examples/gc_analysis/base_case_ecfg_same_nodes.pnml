@@ -9,9 +9,9 @@
         <text>1</text>
       </initialMarking>
     </place>
-    <place id="154">
-    </place>
     <place id="139">
+    </place>
+    <place id="154">
     </place>
     <place id="129">
     </place>
@@ -54,12 +54,12 @@
         <text>ARTIFICIAL_START</text>
       </name>
     </transition>
-    <transition id="138">
+    <transition id="153">
       <name>
         <text>B</text>
       </name>
     </transition>
-    <transition id="153">
+    <transition id="138">
       <name>
         <text>B</text>
       </name>
