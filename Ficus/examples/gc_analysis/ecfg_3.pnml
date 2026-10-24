@@ -1,116 +1,108 @@
 <pnml>
   <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
-    <place id="14">
-    </place>
-    <place id="18">
-    </place>
-    <place id="10">
-    </place>
-    <place id="26">
-    </place>
-    <place id="12">
-    </place>
-    <place id="28">
-    </place>
-    <place id="16">
-    </place>
-    <place id="20">
-    </place>
-    <place id="22">
-    </place>
-    <place id="24">
-    </place>
-    <place id="4">
-    </place>
-    <place id="6">
-    </place>
-    <place id="2">
-    </place>
     <place id="0">
       <initialMarking>
         <text>1</text>
       </initialMarking>
     </place>
-    <place id="8">
+    <place id="1">
     </place>
-    <place id="15">
-    </place>
-    <place id="19">
+    <place id="10">
     </place>
     <place id="11">
     </place>
-    <place id="27">
+    <place id="12">
     </place>
     <place id="13">
     </place>
-    <place id="29">
+    <place id="14">
+    </place>
+    <place id="15">
+    </place>
+    <place id="16">
     </place>
     <place id="17">
     </place>
+    <place id="18">
+    </place>
+    <place id="19">
+    </place>
+    <place id="2">
+    </place>
+    <place id="20">
+    </place>
     <place id="21">
+    </place>
+    <place id="22">
     </place>
     <place id="23">
     </place>
+    <place id="24">
+    </place>
     <place id="25">
     </place>
-    <place id="5">
+    <place id="26">
     </place>
-    <place id="7">
+    <place id="27">
+    </place>
+    <place id="28">
+    </place>
+    <place id="29">
     </place>
     <place id="3">
     </place>
-    <place id="1">
+    <place id="4">
+    </place>
+    <place id="5">
+    </place>
+    <place id="6">
+    </place>
+    <place id="7">
+    </place>
+    <place id="8">
     </place>
     <place id="9">
     </place>
-    <transition id="51">
+    <transition id="102">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="105">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="108">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="111">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="114">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="117">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="120">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="123">
+      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
+      </toolspecific>
+    </transition>
+    <transition id="30">
       <name>
-        <text>0</text>
+        <text>ARTIFICIAL_START</text>
       </name>
     </transition>
-    <transition id="45">
+    <transition id="33">
       <name>
-        <text>2</text>
-      </name>
-    </transition>
-    <transition id="57">
-      <name>
-        <text>2</text>
-      </name>
-    </transition>
-    <transition id="48">
-      <name>
-        <text>3</text>
-      </name>
-    </transition>
-    <transition id="72">
-      <name>
-        <text>3</text>
-      </name>
-    </transition>
-    <transition id="69">
-      <name>
-        <text>3</text>
-      </name>
-    </transition>
-    <transition id="54">
-      <name>
-        <text>4</text>
-      </name>
-    </transition>
-    <transition id="60">
-      <name>
-        <text>5</text>
-      </name>
-    </transition>
-    <transition id="63">
-      <name>
-        <text>6</text>
-      </name>
-    </transition>
-    <transition id="66">
-      <name>
-        <text>7</text>
+        <text>ARTIFICIAL_END</text>
       </name>
     </transition>
     <transition id="36">
@@ -123,141 +115,98 @@
         <text>9</text>
       </name>
     </transition>
-    <transition id="33">
-      <name>
-        <text>ARTIFICIAL_END</text>
-      </name>
-    </transition>
-    <transition id="30">
-      <name>
-        <text>ARTIFICIAL_START</text>
-      </name>
-    </transition>
     <transition id="42">
       <name>
         <text>Loop[1::1::1::1::1::1]</text>
       </name>
     </transition>
-    <transition id="102">
+    <transition id="45">
       <name>
-        <text>tau_21716</text>
+        <text>2</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="105">
+    <transition id="48">
       <name>
-        <text>tau_21719</text>
+        <text>3</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="108">
+    <transition id="51">
       <name>
-        <text>tau_21722</text>
+        <text>0</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="111">
+    <transition id="54">
       <name>
-        <text>tau_21725</text>
+        <text>2</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="114">
+    <transition id="57">
       <name>
-        <text>tau_21728</text>
+        <text>4</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="117">
+    <transition id="60">
       <name>
-        <text>tau_21731</text>
+        <text>3</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="120">
+    <transition id="63">
       <name>
-        <text>tau_21734</text>
+        <text>5</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
     </transition>
-    <transition id="123">
+    <transition id="66">
       <name>
-        <text>tau_21737</text>
+        <text>6</text>
       </name>
-      <toolspecific tool="ProM" version="6.4" activity="$invisible$">
-      </toolspecific>
+    </transition>
+    <transition id="69">
+      <name>
+        <text>7</text>
+      </name>
+    </transition>
+    <transition id="72">
+      <name>
+        <text>3</text>
+      </name>
     </transition>
     <transition id="75">
-      <name>
-        <text>tau_21689</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="78">
-      <name>
-        <text>tau_21692</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="81">
-      <name>
-        <text>tau_21695</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="84">
-      <name>
-        <text>tau_21698</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="87">
-      <name>
-        <text>tau_21701</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="90">
-      <name>
-        <text>tau_21704</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="93">
-      <name>
-        <text>tau_21707</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="96">
-      <name>
-        <text>tau_21710</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="99">
-      <name>
-        <text>tau_21713</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="100" source="27" target="99">
+    <arc id="100" source="21" target="99">
     </arc>
     <arc id="101" source="99" target="2">
     </arc>
@@ -277,7 +226,7 @@
     </arc>
     <arc id="113" source="111" target="20">
     </arc>
-    <arc id="115" source="21" target="114">
+    <arc id="115" source="19" target="114">
     </arc>
     <arc id="116" source="114" target="22">
     </arc>
@@ -289,7 +238,7 @@
     </arc>
     <arc id="122" source="120" target="26">
     </arc>
-    <arc id="124" source="19" target="123">
+    <arc id="124" source="27" target="123">
     </arc>
     <arc id="125" source="123" target="28">
     </arc>
