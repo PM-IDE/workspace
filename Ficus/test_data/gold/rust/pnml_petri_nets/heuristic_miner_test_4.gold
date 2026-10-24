@@ -51,10 +51,7 @@
         <text>G</text>
       </name>
     </transition>
-    <transition id="tau_29">
-      <name>
-        <text>tau_1935</text>
-      </name>
+    <transition id="tau">
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
@@ -70,7 +67,7 @@
     </arc>
     <arc id="[{G}--{post_G}]" source="G" target="post_G">
     </arc>
-    <arc id="[{post_A}--{tau_29}]" source="post_A" target="tau_29">
+    <arc id="[{post_A}--{tau}]" source="post_A" target="tau">
     </arc>
     <arc id="[{post_B}--{G}]" source="post_B" target="G">
     </arc>
@@ -88,9 +85,9 @@
     </arc>
     <arc id="[{pre_F}--{F}]" source="pre_F" target="F">
     </arc>
-    <arc id="[{tau_29}--{pre_C}]" source="tau_29" target="pre_C">
+    <arc id="[{tau}--{pre_C}]" source="tau" target="pre_C">
     </arc>
-    <arc id="[{tau_29}--{pre_F}]" source="tau_29" target="pre_F">
+    <arc id="[{tau}--{pre_F}]" source="tau" target="pre_F">
     </arc>
   </net>
 </pnml>
