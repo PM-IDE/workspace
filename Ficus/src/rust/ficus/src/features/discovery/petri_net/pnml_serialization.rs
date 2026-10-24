@@ -89,7 +89,9 @@ where
   TTransitionData: ToString,
 {
   let mut places = net.all_places();
-  places.sort_by(|left, right| left.name().cmp(right.name()));
+  places.sort_by(|left, right| {
+    create_place_id(left, use_names_as_ids).cmp(&create_place_id(right, use_names_as_ids))
+  });
 
   for place in places {
     let cookie = StartEndElementCookie::new_with_attrs(
@@ -162,14 +164,14 @@ fn write_transitions<TTransitionData, TArcData>(
 where
   TTransitionData: ToString,
 {
-  for transition in created_ordered_transitions_list(net) {
+  for transition in created_ordered_transitions_list(net, use_names_as_ids) {
     let cookie = StartEndElementCookie::new_with_attrs(
       writer,
       TRANSITION_TAG_NAME,
       &vec![(ID_ATTR_NAME, create_transition_id(transition, use_names_as_ids).as_str())],
     )?;
 
-    if let Some(data) = transition.data() {
+    if let Some(data) = transition.data() && !transition.is_silent() {
       let name = StartEndElementCookie::new(writer, NAME_TAG_NAME)?;
       let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME)?;
 
@@ -199,12 +201,15 @@ where
 
 fn created_ordered_transitions_list<TTransitionData, TArcData>(
   net: &PetriNet<TTransitionData, TArcData>,
+  use_names_as_ids: bool
 ) -> Vec<&Transition<TTransitionData, TArcData>>
 where
   TTransitionData: ToString,
 {
   let mut transitions = net.all_transitions();
-  transitions.sort_by(|left, right| left.name().cmp(right.name()));
+  transitions.sort_by(|left, right| {
+    create_transition_id(left, use_names_as_ids).cmp(&create_transition_id(right, use_names_as_ids))
+  });
 
   transitions
 }
@@ -218,7 +223,7 @@ where
   TTransitionData: ToString,
 {
   let mut all_arcs = vec![];
-  for transition in net.all_transitions() {
+  for transition in net.all_transitions_sorted() {
     all_arcs.extend(patch_arcs_list(
       net,
       transition,
@@ -248,13 +253,13 @@ where
     ));
   }
 
-  all_arcs.sort_by(|(_, n1, ..), (_, n2, ..)| n1.cmp(n2));
+  all_arcs.sort_by(|(n1, ..), (n2, ..)| n1.cmp(n2));
 
-  for (_, name, from, to) in all_arcs {
+  for (id, from, to) in all_arcs {
     let _arc = StartEndElementCookie::new_with_attrs(
       writer,
       ARC_TAG_NAME,
-      &vec![(ID_ATTR_NAME, &name), (SOURCE_ATTR_NAME, &from), (TARGET_ATTR_NAME, &to)],
+      &vec![(ID_ATTR_NAME, &id), (SOURCE_ATTR_NAME, &from), (TARGET_ATTR_NAME, &to)],
     )?;
   }
 
@@ -268,8 +273,8 @@ fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
   arcs: &'a [PetriNetArc<TArcData>],
   use_names_as_ids: bool,
   names_creator: impl Fn(&PetriNetArc<TArcData>) -> String,
-) -> Vec<(&'a PetriNetArc<TArcData>, String, String, String)> {
-  let mut arcs: Vec<_> = arcs
+) -> Vec<(String, String, String)> {
+  arcs
     .iter()
     .map(|arc| {
       let mut from = create_place_id(net.place(&arc.place_id()), use_names_as_ids);
@@ -280,7 +285,6 @@ fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
       }
 
       (
-        arc,
         clean_string(match use_names_as_ids {
           true => names_creator(arc),
           false => arc.id().to_string(),
@@ -289,10 +293,7 @@ fn patch_arcs_list<'a, TTransitionData: ToString, TArcData>(
         to,
       )
     })
-    .collect();
-
-  arcs.sort_by(|first, second| first.1.cmp(&second.1));
-  arcs
+    .collect()
 }
 
 fn create_place_id(place: &Place, use_names_as_ids: bool) -> String {
@@ -311,7 +312,11 @@ where
   TTransitionData: ToString,
 {
   clean_string(match use_names_as_ids {
-    true => transition.name().to_string(),
+    true => match transition.is_silent() {
+      false => transition.name().to_string(),
+      //TODO: fix this by making all algorithms deterministic
+      true => "tau".to_string()
+    },
     false => transition.id().to_string(),
   })
 }
