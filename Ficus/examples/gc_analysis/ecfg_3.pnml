@@ -137,32 +137,32 @@
     </transition>
     <transition id="54">
       <name>
-        <text>4</text>
+        <text>2</text>
       </name>
     </transition>
     <transition id="57">
       <name>
-        <text>2</text>
+        <text>4</text>
       </name>
     </transition>
     <transition id="60">
       <name>
-        <text>5</text>
+        <text>3</text>
       </name>
     </transition>
     <transition id="63">
       <name>
-        <text>6</text>
+        <text>5</text>
       </name>
     </transition>
     <transition id="66">
       <name>
-        <text>7</text>
+        <text>6</text>
       </name>
     </transition>
     <transition id="69">
       <name>
-        <text>3</text>
+        <text>7</text>
       </name>
     </transition>
     <transition id="72">
@@ -206,7 +206,7 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="100" source="27" target="99">
+    <arc id="100" source="21" target="99">
     </arc>
     <arc id="101" source="99" target="2">
     </arc>
@@ -226,7 +226,7 @@
     </arc>
     <arc id="113" source="111" target="20">
     </arc>
-    <arc id="115" source="21" target="114">
+    <arc id="115" source="19" target="114">
     </arc>
     <arc id="116" source="114" target="22">
     </arc>
@@ -238,7 +238,7 @@
     </arc>
     <arc id="122" source="120" target="26">
     </arc>
-    <arc id="124" source="19" target="123">
+    <arc id="124" source="27" target="123">
     </arc>
     <arc id="125" source="123" target="28">
     </arc>
