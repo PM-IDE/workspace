@@ -1,5 +1,5 @@
 <pnml>
-  <net>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
     <place id="IN_END">
     </place>
     <place id="IN_START">
@@ -18,9 +18,9 @@
         <text>START</text>
       </name>
     </transition>
-    <transition id="tau">
+    <transition id="tau_10">
       <name>
-        <text>tau</text>
+        <text>tau_1355</text>
       </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
@@ -31,11 +31,11 @@
     </arc>
     <arc id="[{IN_START}--{START}]" source="IN_START" target="START">
     </arc>
-    <arc id="[{OUT_START}--{tau}]" source="OUT_START" target="tau">
+    <arc id="[{OUT_START}--{tau_10}]" source="OUT_START" target="tau_10">
     </arc>
     <arc id="[{START}--{OUT_START}]" source="START" target="OUT_START">
     </arc>
-    <arc id="[{tau}--{IN_END}]" source="tau" target="IN_END">
+    <arc id="[{tau_10}--{IN_END}]" source="tau_10" target="IN_END">
     </arc>
   </net>
 </pnml>

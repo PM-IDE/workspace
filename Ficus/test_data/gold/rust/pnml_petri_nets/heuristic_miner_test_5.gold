@@ -1,5 +1,5 @@
 <pnml>
-  <net>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
     <place id="post_A">
     </place>
     <place id="post_B">
@@ -35,9 +35,9 @@
         <text>E</text>
       </name>
     </transition>
-    <transition id="tau">
+    <transition id="tau_18">
       <name>
-        <text>tau</text>
+        <text>tau_1974</text>
       </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
@@ -48,7 +48,7 @@
     </arc>
     <arc id="[{D}--{post_D}]" source="D" target="post_D">
     </arc>
-    <arc id="[{post_A}--{tau}]" source="post_A" target="tau">
+    <arc id="[{post_A}--{tau_18}]" source="post_A" target="tau_18">
     </arc>
     <arc id="[{post_B}--{C}]" source="post_B" target="C">
     </arc>
@@ -60,9 +60,9 @@
     </arc>
     <arc id="[{pre_D}--{D}]" source="pre_D" target="D">
     </arc>
-    <arc id="[{tau}--{pre_B}]" source="tau" target="pre_B">
+    <arc id="[{tau_18}--{pre_B}]" source="tau_18" target="pre_B">
     </arc>
-    <arc id="[{tau}--{pre_D}]" source="tau" target="pre_D">
+    <arc id="[{tau_18}--{pre_D}]" source="tau_18" target="pre_D">
     </arc>
   </net>
 </pnml>
