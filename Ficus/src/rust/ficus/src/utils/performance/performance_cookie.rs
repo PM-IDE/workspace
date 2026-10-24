@@ -9,13 +9,14 @@ pub fn performance_cookie<TOk, TErr>(
   logger: &impl PerformanceLogger<TErr>,
   action: &mut impl FnMut() -> Result<TOk, TErr>,
 ) -> Result<TOk, TErr> {
-  let mut stopwatch = Stopwatch::start_new();
   logger.log(format!("Started activity {}", activity_name).as_str())?;
+
+  let mut stopwatch = Stopwatch::start_new();
   let result = action()?;
-
   stopwatch.stop();
-  let elapsed = stopwatch.elapsed_ms();
 
-  logger.log(format!("Activity {} finished in {}ms", activity_name, elapsed).as_str())?;
+  let elapsed = stopwatch.elapsed().as_nanos();
+
+  logger.log(format!("Activity {} finished in {}ns", activity_name, elapsed).as_str())?;
   Ok(result)
 }
