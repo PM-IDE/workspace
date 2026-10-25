@@ -206,7 +206,7 @@
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
-    <arc id="100" source="21" target="99">
+    <arc id="100" source="29" target="99">
     </arc>
     <arc id="101" source="99" target="2">
     </arc>
@@ -330,7 +330,7 @@
     </arc>
     <arc id="95" source="93" target="2">
     </arc>
-    <arc id="97" source="29" target="96">
+    <arc id="97" source="21" target="96">
     </arc>
     <arc id="98" source="96" target="2">
     </arc>
