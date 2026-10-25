@@ -1,4 +1,4 @@
 <pnml>
-  <net>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
   </net>
 </pnml>

@@ -89,7 +89,13 @@ fn execute_test_with_replay(net: &DefaultPetriNet, log: &impl EventLog, expected
     let replayed_transitions: Vec<String> = state
       .fired_transitions()
       .iter()
-      .map(|id| net.transition(id).name().to_owned())
+      .map(|id| {
+        let t = net.transition(id);
+        match t.is_silent() {
+          true => "tau".to_string(),
+          false => t.name().to_owned()
+        }
+      })
       .collect();
 
     assert_eq!(&replayed_transitions, expected);

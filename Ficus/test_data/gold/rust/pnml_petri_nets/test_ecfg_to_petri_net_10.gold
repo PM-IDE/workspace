@@ -1,5 +1,5 @@
 <pnml>
-  <net>
+  <net id="petri_net" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
     <place id="IN_A">
     </place>
     <place id="IN_B">
@@ -121,121 +121,70 @@
       </name>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
     <transition id="tau">
-      <name>
-        <text>tau</text>
-      </name>
       <toolspecific tool="ProM" version="6.4" activity="$invisible$">
       </toolspecific>
     </transition>
